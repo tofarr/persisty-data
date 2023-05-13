@@ -4,6 +4,8 @@ This is an addition to the [persisty](https://github.com/tofarr/persisty) framew
 (File Uploads). The objective is to be compatible with third party services, including ones that use signed
 URLs for posting / reading (Such as S3).
 
+## Concepts
+
 * [DataItems](persisty_data/data_item_abc.py) represent the storage of binary data, with methods for reading and writing
   as well as obtaining meta such as file size, last modified and etag
 * [DataStores](persisty_data/data_store_abc.py) store data items, with higher level methods for copying efficiently
