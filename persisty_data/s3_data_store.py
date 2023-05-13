@@ -207,7 +207,11 @@ class _ChunkWriter(io.RawIOBase):
     def __enter__(self):
         self.current_part = bytearray()
         kwargs = filter_none(
-            {"Bucket": self.bucket_name, "Key": self.key, "ContentType": self.content_type}
+            {
+                "Bucket": self.bucket_name,
+                "Key": self.key,
+                "ContentType": self.content_type,
+            }
         )
         response = get_s3_client().create_multipart_upload(**kwargs)
         self.upload_id = response["UploadId"]

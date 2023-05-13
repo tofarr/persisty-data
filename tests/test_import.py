@@ -4,6 +4,10 @@ from unittest import TestCase
 
 
 class TestImport(TestCase):
+    """
+    Not a great test, but at least make sure that everything imports without error.
+    """
+
     def test_import(self):
         import persisty_data
 
