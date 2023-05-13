@@ -7,16 +7,18 @@ class TestImport(TestCase):
     def test_import(self):
         import persisty_data
 
-        _load_modules(persisty_data)
+        _load_submodules(persisty_data)
         import marshy_config_persisty_data
 
-        _load_modules(marshy_config_persisty_data)
+        _load_submodules(marshy_config_persisty_data)
         import schemey_config_persisty_data
 
-        _load_modules(schemey_config_persisty_data)
+        _load_submodules(schemey_config_persisty_data)
 
 
-def _load_modules(module):
+def _load_submodules(module):
+    if not hasattr(module, "__path__"):
+        return  # Module was not a package...
     paths = []
     paths.extend(module.__path__)
     module_infos = list(pkgutil.walk_packages(paths))
@@ -24,4 +26,4 @@ def _load_modules(module):
         sub_module_name = module.__name__ + "." + module_info.name
         sub_module = importlib.import_module(sub_module_name)
         # noinspection PyTypeChecker
-        _load_modules(sub_module)
+        _load_submodules(sub_module)

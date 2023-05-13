@@ -92,17 +92,16 @@ class S3DataStore(DataStoreABC):
             limit = 1000
         if self._is_native_search(search_filter, search_order):
             return self._search_native(search_filter, page_key, limit)
-        else:
-            results = self._search_all_local(search_filter, search_order)
-            while True:
-                result = next(results)
-                if result.key == page_key:
-                    break
-            results = list(islice(results, limit))
-            next_page_key = None
-            if len(results) == limit:
-                next_page_key = results[-1].key
-            return ResultSet(results=results, next_page_key=next_page_key)
+        results = self._search_all_local(search_filter, search_order)
+        while True:
+            result = next(results)
+            if result.key == page_key:
+                break
+        results = list(islice(results, limit))
+        next_page_key = None
+        if len(results) == limit:
+            next_page_key = results[-1].key
+        return ResultSet(results=results, next_page_key=next_page_key)
 
     def search_all(
         self,
@@ -132,6 +131,7 @@ class S3DataStore(DataStoreABC):
                 return False
         return True
 
+    # pylint: disable=W0212
     def _search_native(
         self,
         search_filter: SearchFilterABC[DataItemABC],
@@ -173,8 +173,9 @@ class S3DataStore(DataStoreABC):
             results = iter(results)
         return results
 
+    # pylint: disable=W0212
     def _load_all(self) -> Iterator[S3DataItem]:
-        kwargs = dict(Bucket=self.bucket_name)
+        kwargs = {"Bucket": self.bucket_name}
         while True:
             response = get_s3_client().list_objects_v2(**kwargs)
             for c in response.get("Contents") or []:
@@ -206,7 +207,7 @@ class _ChunkWriter(io.RawIOBase):
     def __enter__(self):
         self.current_part = bytearray()
         kwargs = filter_none(
-            dict(Bucket=self.bucket_name, Key=self.key, ContentType=self.content_type)
+            {"Bucket": self.bucket_name, "Key": self.key, "ContentType": self.content_type}
         )
         response = get_s3_client().create_multipart_upload(**kwargs)
         self.upload_id = response["UploadId"]
@@ -233,9 +234,6 @@ class _ChunkWriter(io.RawIOBase):
             Bucket=self.bucket_name, Key=self.key, UploadId=self.upload_id
         )
         self.close()
-
-    def close(self):
-        super().close()
 
     def write(self, input_: Union[bytes, bytearray]) -> Optional[int]:
         s3_client = get_s3_client()

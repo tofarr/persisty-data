@@ -24,6 +24,7 @@ class DirectoryDataStore(DataStoreABC):
     directory: Path
     max_item_size: int = 1024 * 1024 * 100  # Default 100mb - seems fair
 
+    # pylint: disable=W0201
     def get_meta(self) -> StoreMeta:
         meta = getattr(self, "_meta", None)
         if meta is None:

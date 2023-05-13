@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Dict, Type, List
+from typing import Dict, Generic, List, Optional, Type, TypeVar
 
 from marshy.types import ExternalItemType
 from schemey import schema_from_type
@@ -9,8 +9,6 @@ from persisty.attr.attr import Attr, DEFAULT_PERMITTED_FILTER_OPS
 from persisty.attr.attr_type import AttrType
 from persisty.errors import PersistyError
 from persisty.link.link_abc import LinkABC
-
-from typing import Generic, TypeVar
 
 from persisty_data.data_store_factory_abc import (
     DataStoreFactoryABC,

@@ -65,8 +65,7 @@ class DataStoreFactoryABC(StoreFactoryABC[DataItemABC]):
                 # Create, Update and batch actions require the presence of files, and will not work.
                 # We therefore do not create actions for these...
                 continue
-            else:
-                yield action_
+            yield action_
         meta = self.get_meta().store_access
         if meta.creatable or meta.updatable:
             yield self.get_upload_form_action()

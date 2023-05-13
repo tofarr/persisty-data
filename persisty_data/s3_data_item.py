@@ -11,6 +11,7 @@ from persisty_data.data_item_abc import DataItemABC
 from persisty_data.s3_client import get_s3_client
 
 
+# pylint: disable=R0902
 @dataclass
 class S3DataItem(DataItemABC):
     bucket_name: str
@@ -37,6 +38,7 @@ class S3DataItem(DataItemABC):
         self._size = UNDEFINED
         self._data_url = UNDEFINED
 
+    # pylint: disable=W0201
     def _init_meta_from_response(self, response: Dict):
         self._updated_at = response.get("LastModified")
         self._etag = response.get("ETag")

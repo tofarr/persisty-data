@@ -19,6 +19,7 @@ from persisty_data.hosted_data_store import HostedDataStore
 from persisty_data.upload_form import UploadForm
 
 
+# pylint: disable=R0902
 @dataclasses.dataclass
 class HostedDataStoreFactory(DataStoreFactoryABC):
     """
@@ -28,7 +29,6 @@ class HostedDataStoreFactory(DataStoreFactoryABC):
 
     data_store_factory: DataStoreFactoryABC
     authorizer: Optional[AuthorizerABC] = None
-    " Can we derive the download and upload paths from actions? It feels like they should be connected."
     secured_upload_path: Optional[str] = None
     upload_expire_in: int = 3600
     secured_download_path: Optional[str] = None

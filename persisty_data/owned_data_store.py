@@ -43,6 +43,7 @@ class OwnedDataStore(DataStoreABC, WrapperStoreABC[DataItemABC]):
         item = self.store.read(key)
         return item
 
+    # pylint: disable=W0212
     def _update(
         self, key: str, item: DataItemABC, updates: DataItemABC
     ) -> Optional[DataItemABC]:
@@ -84,6 +85,7 @@ class OwnedDataStore(DataStoreABC, WrapperStoreABC[DataItemABC]):
             )
         return self.store.search_all(search_filter, search_order)
 
+    # pylint: disable=W0212
     def _edit_batch(
         self,
         edits: List[BatchEdit[DataItemABC, DataItemABC]],

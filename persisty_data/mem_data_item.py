@@ -9,6 +9,7 @@ from persisty_data.data_item_abc import DataItemABC
 from persisty_data.data_store_abc import calculate_etag
 
 
+# pylint: disable=R0902
 @dataclass
 class MemDataItem(DataItemABC):
     value: Union[bytes, bytearray, type(None)]

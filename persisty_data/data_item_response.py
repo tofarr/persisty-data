@@ -12,6 +12,7 @@ from persisty_data.data_item_abc import DataItemABC
 
 
 class DataItemResponse(Response):
+    # pylint: disable=W0231
     # noinspection PyMissingConstructor
     def __init__(
         self, status_code, headers, data_item: DataItemABC, buffer_size: int = 64 * 1024

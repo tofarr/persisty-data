@@ -1,6 +1,6 @@
 import base64
 
-from marshy.marshaller.marshaller_abc import MarshallerABC, T
+from marshy.marshaller.marshaller_abc import MarshallerABC
 
 
 class BytesMarshaller(MarshallerABC[bytes]):

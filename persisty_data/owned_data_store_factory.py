@@ -16,8 +16,6 @@ from persisty_data.upload_form import UploadForm
 class OwnedDataStoreFactory(DataStoreFactoryABC):
     data_store_factory: DataStoreFactoryABC
     require_owner_for_read: bool = False
-    require_owner_for_update: bool = True
-    require_owner_for_delete: bool = True
 
     def get_meta(self) -> StoreMeta:
         return self.data_store_factory.get_meta()
@@ -27,8 +25,6 @@ class OwnedDataStoreFactory(DataStoreFactoryABC):
             store=self.data_store_factory.create(authorization),
             authorization=authorization,
             require_owner_for_read=self.require_owner_for_read,
-            require_owner_for_update=self.require_owner_for_update,
-            require_owner_for_delete=self.require_owner_for_delete,
         )
         return store
 

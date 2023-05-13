@@ -36,6 +36,7 @@ class HostedDataStore(DataStoreABC):
             item.data_url = self.get_download_url(item.key, self.authorization)
             return item
 
+    # pylint: disable=W0212
     def _update(
         self, key: str, item: DataItemABC, updates: DataItemABC
     ) -> Optional[DataItemABC]:

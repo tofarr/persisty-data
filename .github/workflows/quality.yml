@@ -30,7 +30,7 @@ jobs:
       - name: Install pytest code coverage
         run: python -m pip install ".[all]"
       - name: testcoverage
-        run: python -m pytest -n auto --cov-report=term-missing --cov=tests --cov=marshy_config_persisty --cov=persisty --cov-fail-under=1
+        run: python -m pytest -n auto --cov-report=term-missing --cov=tests --cov=marshy_config_persisty_data --cov=persisty_data --cov=schemey_config_persisty_data  --cov-fail-under=45
 
   pylint:
     runs-on: ubuntu-latest
@@ -43,4 +43,4 @@ jobs:
       - name: Install pylint
         run: python -m pip install ".[all]"
       - name: lint
-        run: pylint marshy_config_persisty persisty
+        run: pylint marshy_config_persisty_data persisty_data schemey_config_persisty_data

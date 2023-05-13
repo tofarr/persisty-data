@@ -31,6 +31,7 @@ class ChunkDataStore(DataStoreABC):
     chunk_size: int = 1024 * 256
     max_item_size: int = 1024 * 1024 * 50
 
+    # pylint: disable=W0201
     def get_meta(self) -> StoreMeta:
         meta = getattr(self, "_meta", None)
         if meta is None:
@@ -68,6 +69,7 @@ class ChunkDataStore(DataStoreABC):
         _delete_chunks(self.chunk_store, old_stream_id)
         return item
 
+    # pylint: disable=W0212
     def _delete(self, key: str, item: ChunkDataItem) -> bool:
         self.content_meta_store._delete(key, item.content_meta)
         _delete_chunks(self.chunk_store, item.content_meta.stream_id)
@@ -111,6 +113,7 @@ def _delete_chunks(chunk_store: StoreABC[Chunk], stream_id: UUID):
     chunk_store.edit_all(edits)
 
 
+# pylint: disable=R0902
 @dataclass
 class _ChunkWriter(io.RawIOBase):
     content_meta_store: StoreABC[ContentMeta]
@@ -160,9 +163,6 @@ class _ChunkWriter(io.RawIOBase):
         else:
             self.content_meta = self.content_meta_store.update(content_meta)
         self.close()
-
-    def close(self):
-        super().close()
 
     def write(self, input_: Union[bytes, bytearray]) -> Optional[int]:
         offset = 0

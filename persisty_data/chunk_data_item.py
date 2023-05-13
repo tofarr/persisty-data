@@ -67,9 +67,6 @@ class _ChunkReader(io.RawIOBase):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def close(self):
-        super().close()
-
     def readinto(self, output):
         if self.current_chunk is UNDEFINED:
             self.current_chunk = next(self.chunks, None)

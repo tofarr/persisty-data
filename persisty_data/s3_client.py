@@ -3,6 +3,7 @@ import boto3
 _S3_CLIENT = None
 
 
+# pylint: disable=W0603
 def get_s3_client():
     global _S3_CLIENT
     s3_client = _S3_CLIENT
