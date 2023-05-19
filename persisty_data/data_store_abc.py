@@ -2,9 +2,12 @@ import hashlib
 from abc import ABC, abstractmethod
 from typing import Iterator, Optional
 
+from persisty.factory.default_store_factory import DefaultStoreFactory
 from persisty.finder.store_finder_abc import find_stores
 from persisty.store.store_abc import StoreABC
 from persisty_data.data_item_abc import DataItemABC
+
+_DataStoreFactoryABC = "persisty_data.DataStoreFactoryABC"
 
 
 class DataStoreABC(StoreABC[DataItemABC], ABC):
@@ -19,6 +22,11 @@ class DataStoreABC(StoreABC[DataItemABC], ABC):
         with source.get_data_reader() as reader:
             with self.get_data_writer(source.key, source.content_type) as writer:
                 copy_data(reader, writer)
+
+    def create_default_factory(self) -> _DataStoreFactoryABC:
+        from persisty_data.hosted_data_store_factory import hosted_data_store_factory
+
+        return hosted_data_store_factory(DefaultStoreFactory(self))
 
 
 def find_data_stores() -> Iterator[DataStoreABC]:

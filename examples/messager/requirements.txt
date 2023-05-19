@@ -2,4 +2,4 @@ persisty[servey,serverless]
 bcrypt
 python-dotenv[cli]
 servey[web_page]
-persisty_data
+persisty-data

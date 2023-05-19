@@ -8,6 +8,7 @@ from persisty.store_meta import get_meta
 from persisty_data.chunk import Chunk
 from persisty_data.chunk_data_store import ChunkDataStore
 from persisty_data.content_meta import ContentMeta
+from persisty_data.data_item_abc import DATA_ITEM_META
 from persisty_data.data_store_abc import DataStoreABC
 from persisty_data.directory_data_store import DirectoryDataStore
 
@@ -20,11 +21,14 @@ def default_data_store(
     If there is a PERSISTY_DATA_DIRECTORY in the environment, then we use that
     Otherwise we use a chunk store, and add stores for content meta and chunks to the target.
     """
-    persisty_data_s3_bucket = os.environ.get("PERSISTY_DATA_S3_BUCKET")
+    persisty_data_s3_bucket = os.environ.get(f"PERSISTY_DATA_S3_BUCKET_{name.upper()}")
     if persisty_data_s3_bucket:
         from persisty_data.s3_data_store import S3DataStore
 
-        return S3DataStore(persisty_data_s3_bucket)
+        return S3DataStore(
+            bucket_name=persisty_data_s3_bucket,
+            store_meta=dataclasses.replace(DATA_ITEM_META, name=name),
+        )
     persisty_data_directory = os.environ.get("PERSISTY_DATA_DIRECTORY")
     if persisty_data_directory:
         return DirectoryDataStore(name=name, directory=Path(persisty_data_directory))
