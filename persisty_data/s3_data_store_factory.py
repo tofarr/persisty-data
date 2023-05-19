@@ -37,9 +37,8 @@ class S3DataStoreFactory(DataStoreFactoryABC):
             if item:
                 if not store_access.updatable:
                     raise PersistyError("unavailable_operation")
-                else:
-                    if not store_access.creatable:
-                        raise PersistyError("unavailable_operation")
+                if not store_access.creatable:
+                    raise PersistyError("unavailable_operation")
         s3_client = get_s3_client()
         response = s3_client.generate_presigned_post(
             Bucket=self.bucket_name, Key=key, ExpiresIn=self.upload_expire_in

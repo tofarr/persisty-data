@@ -102,11 +102,13 @@ class S3YmlConfig(YmlConfigABC):
         main_serverless_yml_file: str, s3_stores: List[S3DataStore]
     ):
         yaml = YAML()
+        # pylint: disable=W1514
         with open(main_serverless_yml_file, "r") as reader:
             root = yaml.load(reader)
         parent = _follow_path(root, ["provider", "environment"])
         for store in s3_stores:
             name = f"PERSISTY_DATA_S3_BUCKET_{store.store_meta.name.upper()}"
             parent[name] = store.bucket_name
+        # pylint: disable=W1514
         with open(main_serverless_yml_file, "w") as writer:
             yaml.dump(root, writer)
