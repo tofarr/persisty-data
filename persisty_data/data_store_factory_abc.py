@@ -72,6 +72,12 @@ class DataStoreFactoryABC(StoreFactoryABC[DataItemABC]):
         if meta.readable:
             yield self.get_download_url_action()
 
+    def get_json_schema(self):
+        meta = self.get_meta()
+        return {
+            "store_name": meta.name
+        }
+
 
 def find_data_store_factories() -> Iterator[DataStoreFactoryABC]:
     yield from (s for s in find_store_factories() if isinstance(s, DataStoreFactoryABC))

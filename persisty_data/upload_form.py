@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Set
 
 from servey.trigger.web_trigger import WebTriggerMethod
 
@@ -16,3 +16,4 @@ class UploadForm:
     pre_populated_fields: Optional[List[FormField]] = None
     file_param: str = "file"
     expire_at: Optional[datetime] = None
+    content_types: Optional[Set[str]] = None

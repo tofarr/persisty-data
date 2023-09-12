@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Iterator
+from typing import Optional, Iterator, Set
 
 from persisty.factory.store_factory_abc import ROUTE
 from persisty.store.store_abc import StoreABC
@@ -8,30 +8,31 @@ from servey.action.action import Action
 from servey.security.authorization import Authorization
 
 from persisty_data.data_store_factory_abc import DataStoreFactoryABC
-from persisty_data.owned_data_store import OwnedDataStore
+from persisty_data.typed_data_store import TypedDataStore
 from persisty_data.upload_form import UploadForm
 
 
 @dataclass
-class OwnedDataStoreFactory(DataStoreFactoryABC):
+class TypedDataStoreFactory(DataStoreFactoryABC):
     data_store_factory: DataStoreFactoryABC
-    require_owner_for_read: bool = False
+    content_types: Set[str]
 
     def get_meta(self) -> StoreMeta:
         return self.data_store_factory.get_meta()
 
     def create(self, authorization: Optional[Authorization]) -> Optional[StoreABC[T]]:
-        store = OwnedDataStore(
+        store = TypedDataStore(
             store=self.data_store_factory.create(authorization),
-            authorization=authorization,
-            require_owner_for_read=self.require_owner_for_read,
+            content_types=self.content_types,
         )
         return store
 
     def get_upload_form(
         self, key: str, authorization: Optional[Authorization]
     ) -> UploadForm:
-        return self.data_store_factory.get_upload_form(key, authorization)
+        form = self.data_store_factory.get_upload_form(key, authorization)
+        form.content_types = self.content_types
+        return form
 
     def get_download_url(self, key: str, authorization: Optional[Authorization]) -> str:
         return self.data_store_factory.get_download_url(key, authorization)
@@ -43,4 +44,6 @@ class OwnedDataStoreFactory(DataStoreFactoryABC):
         return self.data_store_factory.create_actions()
 
     def get_json_schema(self):
-        return self.data_store_factory.get_json_schema()
+        schema = self.data_store_factory.get_json_schema()
+        schema["content_types"] = list(self.content_types)
+        return schema

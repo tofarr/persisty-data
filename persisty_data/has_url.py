@@ -107,4 +107,5 @@ class HasUrl(LinkABC):
 
     def update_json_schema(self, json_schema: ExternalItemType):
         key_attr_schema = json_schema.get("properties").get(self.key_attr_name)
-        key_attr_schema["persistyDataHasUrl"] = self.data_store_name
+        factory = self.get_linked_data_store_factory()
+        key_attr_schema["persistyDataStore"] = factory.get_json_schema()
