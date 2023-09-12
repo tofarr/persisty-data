@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Dict, Generic, List, Optional, Type, TypeVar
 
+from marshy.factory.optional_marshaller_factory import get_optional_type
 from marshy.types import ExternalItemType
+from persisty.attr.generator.default_value_generator import DefaultValueGenerator
 from schemey import schema_from_type
 from servey.security.authorization import Authorization
 
@@ -33,7 +35,7 @@ class HasUrl(LinkABC):
     name: Optional[str] = None
     data_store_name: Optional[str] = None
     key_attr_name: Optional[str] = None
-    optional: bool = True
+    optional: Optional[bool] = None
 
     def __set_name__(self, owner, name):
         self.name = name
@@ -41,6 +43,9 @@ class HasUrl(LinkABC):
             self.data_store_name = name[:-4]
         if self.key_attr_name is None:
             self.key_attr_name = f"{self.data_store_name}_key"
+        if self.optional is None:
+            url_type = owner.__dict__["__annotations__"].get(name)
+            self.optional = bool(get_optional_type(url_type))
 
     def __get__(self, obj, obj_type) -> HasUrlCallable[T]:
         return HasUrlCallable(
@@ -90,11 +95,13 @@ class HasUrl(LinkABC):
             return
         type_ = Optional[str] if self.optional else str
         schema = schema_from_type(type_)
+        create_generator = DefaultValueGenerator(None) if self.optional else None
         attrs_by_name[self.key_attr_name] = Attr(
             self.key_attr_name,
             AttrType.STR,
             schema,
             sortable=False,
+            create_generator=create_generator,
             permitted_filter_ops=DEFAULT_PERMITTED_FILTER_OPS,
         )
 
