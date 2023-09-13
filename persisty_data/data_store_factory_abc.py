@@ -74,9 +74,7 @@ class DataStoreFactoryABC(StoreFactoryABC[DataItemABC]):
 
     def get_json_schema(self):
         meta = self.get_meta()
-        return {
-            "store_name": meta.name
-        }
+        return {"store_name": meta.name}
 
 
 def find_data_store_factories() -> Iterator[DataStoreFactoryABC]:

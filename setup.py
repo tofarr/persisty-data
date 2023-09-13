@@ -25,6 +25,9 @@ setuptools.setup(
             "boto3~=1.26",
             "moto~=3.1",
         ],
+        "img": [
+            "Pillow~=10.0"
+        ]
     },
     setup_requires=["setuptools-git-versioning"],
     setuptools_git_versioning={"enabled": True, "dirty_template": "{tag}"},
