@@ -1,7 +1,7 @@
 import dataclasses
 import io
 from itertools import islice
-from typing import Optional, Iterator, Union
+from typing import Optional, Iterator, Union, FrozenSet
 
 from botocore.exceptions import ClientError
 
@@ -14,7 +14,7 @@ from persisty.search_filter.search_filter_abc import SearchFilterABC
 from persisty.search_order.search_order import SearchOrder
 from persisty.store_meta import StoreMeta
 from persisty.util import UNDEFINED, filter_none
-from persisty_data.data_item_abc import DataItemABC, DATA_ITEM_META
+from persisty_data.data_item_abc import DataItemABC, DATA_ITEM_META, data_item_meta
 from persisty_data.data_store_abc import DataStoreABC, copy_data
 from persisty_data.s3_client import get_s3_client
 from persisty_data.s3_data_item import S3DataItem
@@ -22,18 +22,26 @@ from persisty_data.s3_data_item import S3DataItem
 
 @dataclasses.dataclass
 class S3DataStore(DataStoreABC):
-    bucket_name: str
-    store_meta: StoreMeta = None
+    name: str
+    bucket_name: Optional[str] = None
+    max_item_size: int = 1024 * 1024 * 100  # Default 100mb - seems fair
+    content_types: Optional[FrozenSet[str]] = None
 
     def __post_init__(self):
-        meta = self.store_meta
-        if not meta:
-            self.store_meta = dataclasses.replace(DATA_ITEM_META, name=self.bucket_name)
+        if not self.bucket_name:
+            self.bucket_name = self.name
+        meta = getattr(self, "_meta", None)
+        if meta is None:
+            # noinspection PyAttributeOutsideInit
+            meta = self._meta = data_item_meta(self.name, self.max_item_size, self.content_types)
+        return meta
 
     def get_meta(self) -> StoreMeta:
         return self.store_meta
 
     def create(self, item: DataItemABC) -> Optional[S3DataItem]:
+        if self.content_types and item.content_type not in self.content_types:
+            raise PersistyError("invalid_content_type")
         if self.read(item.key):
             raise PersistyError(f"existing_value:{item.key}")
         with item.get_data_reader() as reader:
@@ -58,6 +66,8 @@ class S3DataStore(DataStoreABC):
     def _update(
         self, key: str, item: S3DataItem, updates: DataItemABC
     ) -> Optional[S3DataItem]:
+        if self.content_types and updates.content_type not in self.content_types:
+            raise PersistyError("invalid_content_type")
         with updates.get_data_reader() as reader:
             with self.get_data_writer(item.key, item.content_type) as writer:
                 copy_data(reader, writer)
@@ -165,7 +175,7 @@ class S3DataStore(DataStoreABC):
         search_order: Optional[SearchOrder[DataItemABC]],
     ) -> Iterator[S3DataItem]:
         results = self._load_all()
-        attrs = self.store_meta.attrs
+        attrs = self.get_meta().attrs
         results = (r for r in results if search_filter.match(r, attrs))
         if search_order:
             results = list(results)

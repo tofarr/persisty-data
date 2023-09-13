@@ -2,14 +2,14 @@ import dataclasses
 import os.path
 import shutil
 from pathlib import Path
-from typing import Optional, Iterator
+from typing import Optional, Iterator, FrozenSet
 
 from persisty.errors import PersistyError
 from persisty.search_filter.include_all import INCLUDE_ALL
 from persisty.search_filter.search_filter_abc import SearchFilterABC
 from persisty.search_order.search_order import SearchOrder
 from persisty.store_meta import T, StoreMeta
-from persisty_data.data_item_abc import DataItemABC, DATA_ITEM_META
+from persisty_data.data_item_abc import DataItemABC, DATA_ITEM_META, data_item_meta
 from persisty_data.data_store_abc import DataStoreABC
 from persisty_data.file_data_item import FileDataItem
 
@@ -23,13 +23,14 @@ class DirectoryDataStore(DataStoreABC):
     name: str
     directory: Path
     max_item_size: int = 1024 * 1024 * 100  # Default 100mb - seems fair
+    content_types: Optional[FrozenSet[str]] = None
 
     # pylint: disable=W0201
     def get_meta(self) -> StoreMeta:
         meta = getattr(self, "_meta", None)
         if meta is None:
             # noinspection PyAttributeOutsideInit
-            meta = self._meta = dataclasses.replace(DATA_ITEM_META, name=self.name)
+            meta = self._meta = data_item_meta(self.name, self.max_item_size, self.content_types)
         return meta
 
     def create(self, item: DataItemABC) -> Optional[DataItemABC]:
@@ -88,6 +89,8 @@ class DirectoryDataStore(DataStoreABC):
         return open(path, "wb")
 
     def copy_data_from(self, source: DataItemABC):
+        if self.content_types and source.content_type not in self.content_types:
+            raise PersistyError("invalid_content_type")
         if not isinstance(source, FileDataItem):
             super().copy_data_from(source)
         if os.stat(source).st_size > self.max_item_size:

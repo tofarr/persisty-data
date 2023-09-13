@@ -1,20 +1,19 @@
 import dataclasses
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional, FrozenSet
 
 from persisty.impl.default_store import DefaultStore
 from persisty.store_meta import get_meta
 from persisty_data.chunk import Chunk
 from persisty_data.chunk_data_store import ChunkDataStore
 from persisty_data.content_meta import ContentMeta
-from persisty_data.data_item_abc import DATA_ITEM_META
 from persisty_data.data_store_abc import DataStoreABC
 from persisty_data.directory_data_store import DirectoryDataStore
 
 
 def default_data_store(
-    name: str, target: Dict, max_item_size: int = 1024 * 1024 * 50
+    name: str, target: Dict, max_item_size: int = 1024 * 1024 * 50, content_types: Optional[FrozenSet[str]] = None
 ) -> DataStoreABC:
     """
     Create a default data store. If there is an PERSISTY_DATA_S3_BUCKET value environment variable, then use it.
@@ -26,12 +25,14 @@ def default_data_store(
         from persisty_data.s3_data_store import S3DataStore
 
         return S3DataStore(
+            name=name,
             bucket_name=persisty_data_s3_bucket,
-            store_meta=dataclasses.replace(DATA_ITEM_META, name=name),
+            max_item_size=max_item_size,
+            content_types=content_types
         )
     persisty_data_directory = os.environ.get("PERSISTY_DATA_DIRECTORY")
     if persisty_data_directory:
-        return DirectoryDataStore(name=name, directory=Path(persisty_data_directory))
+        return DirectoryDataStore(name=name, directory=Path(persisty_data_directory), max_item_size=max_item_size, content_types=content_types)
     content_meta_store = DefaultStore(
         dataclasses.replace(get_meta(ContentMeta), name=name + "_content_meta")
     )
@@ -45,5 +46,6 @@ def default_data_store(
         content_meta_store=content_meta_store,
         chunk_store=chunk_store,
         max_item_size=max_item_size,
+        content_types=content_types,
     )
     return chunk_data_store

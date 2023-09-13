@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Optional, FrozenSet
 
 from dateutil.relativedelta import relativedelta
 from persisty.errors import PersistyError
@@ -25,7 +25,7 @@ class S3DataStoreFactory(DataStoreFactoryABC):
     download_expire_in: int = 3600
 
     def get_meta(self) -> StoreMeta:
-        return self.store.store_meta
+        return self.store.get_meta()
 
     def get_upload_form(
         self, key: str, authorization: Optional[Authorization]
@@ -40,8 +40,16 @@ class S3DataStoreFactory(DataStoreFactoryABC):
                 if not store_access.creatable:
                     raise PersistyError("unavailable_operation")
         s3_client = get_s3_client()
+        conditions = [["content-length-range", 0, self.store.max_item_size]]
+        if self.store.content_types:
+            condition = ["content-type"]
+            condition.extend(self.store.content_types)
+            conditions.append(condition)
         response = s3_client.generate_presigned_post(
-            Bucket=self.bucket_name, Key=key, ExpiresIn=self.upload_expire_in
+            Bucket=self.bucket_name,
+            Key=key,
+            ExpiresIn=self.upload_expire_in,
+            Conditions=conditions
         )
         return UploadForm(
             url=response["url"],

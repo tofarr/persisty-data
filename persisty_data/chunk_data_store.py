@@ -2,7 +2,7 @@ import dataclasses
 import hashlib
 import io
 from dataclasses import dataclass, field
-from typing import Optional, Any, Union
+from typing import Optional, Any, Union, FrozenSet
 from uuid import UUID, uuid4
 
 from persisty.attr.attr_filter import AttrFilter
@@ -19,7 +19,7 @@ from persisty.util import UNDEFINED
 from persisty_data.chunk import Chunk
 from persisty_data.chunk_data_item import ChunkDataItem
 from persisty_data.content_meta import ContentMeta
-from persisty_data.data_item_abc import DataItemABC, DATA_ITEM_META
+from persisty_data.data_item_abc import DataItemABC, DATA_ITEM_META, data_item_meta
 from persisty_data.data_store_abc import DataStoreABC, copy_data
 
 
@@ -30,16 +30,19 @@ class ChunkDataStore(DataStoreABC):
     chunk_store: StoreABC[Chunk]
     chunk_size: int = 1024 * 256
     max_item_size: int = 1024 * 1024 * 50
+    content_types: Optional[FrozenSet[str]] = None
 
     # pylint: disable=W0201
     def get_meta(self) -> StoreMeta:
         meta = getattr(self, "_meta", None)
         if meta is None:
             # noinspection PyAttributeOutsideInit
-            meta = self._meta = dataclasses.replace(DATA_ITEM_META, name=self.name)
+            meta = self._meta = data_item_meta(self.name, self.max_item_size, self.content_types)
         return meta
 
     def create(self, item: DataItemABC) -> Optional[DataItemABC]:
+        if self.content_types and item.content_type not in self.content_types:
+            raise PersistyError("invalid_content_type")
         with item.get_data_reader() as reader:
             with self.get_data_writer(item.key, item.content_type) as writer:
                 copy_data(reader, writer, self.chunk_size)
@@ -61,6 +64,8 @@ class ChunkDataStore(DataStoreABC):
     def _update(
         self, key: str, item: ChunkDataItem, updates: DataItemABC
     ) -> Optional[ChunkDataItem]:
+        if self.content_types and updates.content_type not in self.content_types:
+            raise PersistyError("invalid_content_type")
         old_stream_id = item.content_meta.stream_id
         with updates.get_data_reader() as reader:
             with self.get_data_writer(item.key, item.content_type) as writer:
@@ -71,8 +76,10 @@ class ChunkDataStore(DataStoreABC):
 
     # pylint: disable=W0212
     def _delete(self, key: str, item: ChunkDataItem) -> bool:
-        self.content_meta_store._delete(key, item.content_meta)
-        _delete_chunks(self.chunk_store, item.content_meta.stream_id)
+        result = self.content_meta_store._delete(key, item.content_meta)
+        if result:
+            _delete_chunks(self.chunk_store, item.content_meta.stream_id)
+        return result
 
     def count(self, search_filter: SearchFilterABC[DataItemABC] = INCLUDE_ALL) -> int:
         return self.content_meta_store.count(search_filter)

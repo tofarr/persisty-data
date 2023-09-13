@@ -1,6 +1,6 @@
 import io
 import mimetypes
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional, Union
 
@@ -13,7 +13,7 @@ from persisty_data.data_store_abc import calculate_etag
 @dataclass
 class MemDataItem(DataItemABC):
     value: Union[bytes, bytearray, type(None)]
-    key: str
+    key: str = field(default=None)
     data_url: Optional[str] = None
     updated_at: Optional[datetime] = None
     buffer_size: int = 1024 * 1024
