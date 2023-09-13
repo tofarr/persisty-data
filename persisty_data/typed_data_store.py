@@ -1,10 +1,14 @@
+import dataclasses
 from dataclasses import dataclass
+from enum import Enum
 from typing import Optional, Dict, List, Set
 
 from persisty.batch_edit import BatchEdit
 from persisty.batch_edit_result import BatchEditResult
 from persisty.errors import PersistyError
 from persisty.store.wrapper_store_abc import WrapperStoreABC
+from persisty.store_meta import StoreMeta
+from schemey import schema_from_type
 
 from persisty_data.data_item_abc import DataItemABC
 from persisty_data.data_store_abc import DataStoreABC
@@ -13,10 +17,14 @@ from persisty_data.data_store_abc import DataStoreABC
 @dataclass
 class TypedDataStore(DataStoreABC, WrapperStoreABC[DataItemABC]):
     store: DataStoreABC
+    meta: StoreMeta
     content_types: Set[str]
 
     def get_store(self) -> DataStoreABC:
         return self.store
+
+    def get_meta(self) -> StoreMeta:
+        return self.meta
 
     def _check_item(self, item: DataItemABC):
         self._check_content_type(item.content_type)
