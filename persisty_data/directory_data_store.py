@@ -98,9 +98,10 @@ class DirectoryDataStore(DataStoreABC):
             raise PersistyError("invalid_content_type")
         if not isinstance(source, FileDataItem):
             super().copy_data_from(source)
-        if os.stat(source).st_size > self.max_item_size:
+            return
+        if os.stat(source.path).st_size > self.max_item_size:
             raise PersistyError("max_item_size_exceeded")
-        shutil.copyfile(source, self._key_to_path(source.key))
+        shutil.copyfile(source.path, self._key_to_path(source.key))
 
 
 def directory_data_store(name: str):
