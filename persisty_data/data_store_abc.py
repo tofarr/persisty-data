@@ -1,6 +1,6 @@
 import hashlib
 from abc import ABC, abstractmethod
-from typing import Iterator, Optional
+from typing import Iterator, Optional, Callable
 
 from persisty.factory.default_store_factory import DefaultStoreFactory
 from persisty.finder.store_finder_abc import find_stores
@@ -8,6 +8,7 @@ from persisty.store.store_abc import StoreABC
 from persisty_data.data_item_abc import DataItemABC
 
 _DataStoreFactoryABC = "persisty_data.DataStoreFactoryABC"
+HostingWrapper = Callable[[_DataStoreFactoryABC], _DataStoreFactoryABC]
 
 
 class DataStoreABC(StoreABC[DataItemABC], ABC):
@@ -29,10 +30,9 @@ class DataStoreABC(StoreABC[DataItemABC], ABC):
             with self.get_data_writer(source.key, source.content_type) as writer:
                 copy_data(reader, writer)
 
-    def create_default_factory(self) -> _DataStoreFactoryABC:
+    def get_hosting_wrapper(self) -> HostingWrapper:
         from persisty_data.hosted_data_store_factory import hosted_data_store_factory
-        This is wrong - maybe we should replace it with a flag indicating hosting is needed.
-        return hosted_data_store_factory(DefaultStoreFactory(self))
+        return hosted_data_store_factory
 
 
 def find_data_stores() -> Iterator[DataStoreABC]:

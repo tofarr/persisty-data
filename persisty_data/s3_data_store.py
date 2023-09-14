@@ -8,6 +8,7 @@ from botocore.exceptions import ClientError
 from persisty.attr.attr_filter import AttrFilter
 from persisty.attr.attr_filter_op import AttrFilterOp
 from persisty.errors import PersistyError
+from persisty.factory.default_store_factory import DefaultStoreFactory
 from persisty.result_set import ResultSet
 from persisty.search_filter.include_all import INCLUDE_ALL
 from persisty.search_filter.search_filter_abc import SearchFilterABC
@@ -15,7 +16,7 @@ from persisty.search_order.search_order import SearchOrder
 from persisty.store_meta import StoreMeta
 from persisty.util import UNDEFINED, filter_none
 from persisty_data.data_item_abc import DataItemABC, DATA_ITEM_META, data_item_meta
-from persisty_data.data_store_abc import DataStoreABC, copy_data
+from persisty_data.data_store_abc import DataStoreABC, copy_data, _DataStoreFactoryABC
 from persisty_data.s3_client import get_s3_client
 from persisty_data.s3_data_item import S3DataItem
 
@@ -211,6 +212,10 @@ class S3DataStore(DataStoreABC):
 
     def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
         return self.get_data_writer(key, content_type)
+
+    def get_hosting_wrapper(self) -> _DataStoreFactoryABC:
+        from persisty_data.s3_data_store_factory import s3_data_store_factory
+        return s3_data_store_factory
 
 
 @dataclasses.dataclass

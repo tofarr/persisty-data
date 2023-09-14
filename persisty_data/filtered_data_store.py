@@ -5,7 +5,7 @@ from persisty.errors import PersistyError
 from persisty.store.filtered_store import FilteredStore
 
 from persisty_data.data_item_abc import DataItemABC
-from persisty_data.data_store_abc import DataStoreABC
+from persisty_data.data_store_abc import DataStoreABC, HostingWrapper
 
 
 @dataclass(frozen=True)
@@ -16,3 +16,6 @@ class FilteredDataStore(DataStoreABC, FilteredStore[DataItemABC]):
         if not self.search_filter.match(existing_item, self.get_meta().attrs):
             raise PersistyError("update_forbidden")
         return self.store._get_data_writer(key, content_type, existing_item)
+
+    def get_hosting_wrapper(self) -> HostingWrapper:
+        return self.store.get_hosting_wrapper()

@@ -8,10 +8,16 @@ from servey.trigger.web_trigger import WEB_GET
 from persisty.factory.store_factory_abc import StoreFactoryABC
 from persisty.finder.store_finder_abc import find_store_factories
 from persisty_data.data_item_abc import DataItemABC
+from persisty_data.data_store_abc import DataStoreABC
 from persisty_data.upload_form import UploadForm
 
 
 class DataStoreFactoryABC(StoreFactoryABC[DataItemABC]):
+
+    @abstractmethod
+    def create(self, authorization: Optional[Authorization]) -> Optional[DataStoreABC]:
+        """Create a new store instance"""
+
     @abstractmethod
     def get_upload_form(
         self, key: str, authorization: Optional[Authorization]

@@ -2,12 +2,10 @@ import dataclasses
 import io
 from abc import abstractmethod, ABC
 from datetime import datetime
-from enum import Enum
 from typing import Optional, FrozenSet
 
 from marshy.marshaller.obj_marshaller import ObjMarshaller, attr_config
 from marshy.marshaller_context import MarshallerContext
-from schemey import schema_from_type
 from schemey.schema import (
     str_schema,
     int_schema,
