@@ -27,11 +27,13 @@ def resized_img(
     width: Optional[int] = None,
     height: Optional[int] = None,
     content_type: Optional[str] = None,
-    authorization: Optional[Authorization] = None
+    authorization: Optional[Authorization] = None,
 ) -> Redirect:
-    download_url = get_img_resizer().get_resized_image_download_url(store_name, key, width, height, content_type, authorization)
+    download_url = get_img_resizer().get_resized_image_download_url(
+        store_name, key, width, height, content_type, authorization
+    )
     if download_url is None:
-        raise PersistyError('not_found')
+        raise PersistyError("not_found")
     return Redirect(download_url, 301)
 
 
@@ -41,7 +43,7 @@ def resized_img_url(
     width: Optional[int] = None,
     height: Optional[int] = None,
     content_type: Optional[str] = None,
-    authorization: Optional[Authorization] = None
+    authorization: Optional[Authorization] = None,
 ) -> Optional[str]:
     download_url = get_img_resizer().get_resized_image_download_url(
         store_name, key, width, height, content_type, authorization

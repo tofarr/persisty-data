@@ -1,51 +1,62 @@
 import io
 from dataclasses import dataclass, field
-from typing import FrozenSet, Optional, Dict
+from enum import Enum
+from typing import Optional, Dict
 
-from PIL import Image, ImageChops
+from PIL import Image
 from persisty.errors import PersistyError
-from servey.action.action import action
 from servey.security.authorization import Authorization
-from servey.trigger.web_trigger import WEB_GET
 
-from persisty_data.data_store_factory_abc import DataStoreFactoryABC, find_data_store_factories
+from persisty_data.data_store_abc import find_data_stores, DataStoreABC
+from persisty_data.data_store_factory_abc import (
+    DataStoreFactoryABC,
+    find_data_store_factories,
+)
 from persisty_data.mem_data_item import MemDataItem
 
 
 def get_data_store_by_name() -> Dict[str, DataStoreFactoryABC]:
-    data_stores = {
-        f.get_meta().name: f for f in find_data_store_factories()
-    }
+    data_stores = {f.get_meta().name: f for f in find_data_store_factories()}
     return data_stores
+
+
+class ImgType(Enum):
+    PNG = "png"
+    JPG = "jpg"
+    JPEG = "jpeg"
+    GIF = "gif"
+    WEBP = "webp"
 
 
 @dataclass
 class ImgResizer:
-    resized_store_name: str = "resized_image"
-    store_factories: DataStoreFactoryABC = field(default_factory=lambda: {
-        f.get_meta().name: f for f in find_data_store_factories()
-    })
+    resized_store: DataStoreABC = field(
+        default_factory=lambda: next(
+            s for s in find_data_stores() if s.get_meta().name == "resized_image"
+        )
+    )
+    store_factories: Dict[str, DataStoreFactoryABC] = field(
+        default_factory=lambda: {
+            f.get_meta().name: f for f in find_data_store_factories()
+        }
+    )
     max_width: int = 1024
     max_height: int = 768
-    permitted_content_types: FrozenSet[str] = frozenset(("image/png",))
 
-    def get_resized_image_key(self, store: str, key: str, width: int, height: int, content_type: str):
-        if store == self.resized_store_name:
-            raise PersistyError(f'invalid_store:{store}')
-        resized_image_key = f"{store}/{width}_{height}_{content_type}/{key}"
+    def get_resized_image_key(
+        self, store: str, key: str, width: int, height: int, img_type: ImgType
+    ):
+        if store == self.resized_store.get_meta().name:
+            return key
+        resized_image_key = f"{store}/{width}_{height}/{key}.{img_type.value}"
         return resized_image_key
 
-    @property
-    def resized_store_factory(self):
-        return self.store_factories[self.resized_store_name]
-
-    def sanitize_content_type(self, content_type: Optional[str]):
+    def get_img_type(self, content_type: Optional[str]):
         if content_type is None:
-            content_type = next(iter(self.permitted_content_types))
-            return content_type
-        if content_type not in self.permitted_content_types:
-            raise PersistyError(f"invalid_content_type:{content_type}")
-        return content_type
+            return ImgType.PNG
+        img_type = content_type[6:]
+        img_type = ImgType(img_type)
+        return img_type
 
     def get_resized_image_download_url(
         self,
@@ -58,10 +69,14 @@ class ImgResizer:
     ):
         width = width or self.max_width
         height = height or self.max_height
-        content_type = self.sanitize_content_type(content_type)
-        resized_image_key = self.get_resized_image_key(store_name, key, width, height, content_type)
-        resized_store = self.resized_store_factory.create(authorization)
-        item = resized_store.read(key)
+        if width > self.max_width or height > self.max_height:
+            raise PersistyError('invalid_dimensions')
+        img_type = self.get_img_type(content_type)
+        resized_image_key = self.get_resized_image_key(
+            store_name, key, width, height, img_type
+        )
+        resized_store = self.resized_store
+        item = resized_store.read(resized_image_key)
         if not item:
             source_store = self.store_factories[store_name].create(authorization)
             item = source_store.read(key)
@@ -69,15 +84,19 @@ class ImgResizer:
                 return
             img = Image.open(item.get_data_reader())
             resized_img = create_resized_img(img, width, height)
-            #resized_img = image.resize((width, height))
 
             with io.BytesIO() as output:
-                resized_img.save(output, format=content_type[6:])
+                resized_img.save(output, format=img_type.value)
                 value = output.getvalue()
-            item = MemDataItem(value, resized_image_key, _content_type=content_type)
-            item = resized_store.create(item)
+            item = MemDataItem(
+                value, resized_image_key, _content_type=f"image/{img_type.value}"
+            )
+            resized_store.create(item)
 
-        download_url = item.data_url
+        resized_factory = self.store_factories[resized_store.get_meta().name]
+        download_url = resized_factory.get_download_url(
+            resized_image_key, authorization
+        )
         return download_url
 
 

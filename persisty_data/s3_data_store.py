@@ -33,7 +33,9 @@ class S3DataStore(DataStoreABC):
         meta = getattr(self, "_meta", None)
         if meta is None:
             # noinspection PyAttributeOutsideInit
-            meta = self._meta = data_item_meta(self.name, self.max_item_size, self.content_types)
+            meta = self._meta = data_item_meta(
+                self.name, self.max_item_size, self.content_types
+            )
         return meta
 
     def get_meta(self) -> StoreMeta:
@@ -201,11 +203,18 @@ class S3DataStore(DataStoreABC):
                 return
 
     def get_data_writer(self, key: str, content_type: Optional[str] = None):
-        pass
+        return _MultipartWriter(
+            self.bucket_name,
+            key,
+            content_type
+        )
+
+    def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
+        return self.get_data_writer(key, content_type)
 
 
 @dataclasses.dataclass
-class _ChunkWriter(io.RawIOBase):
+class _MultipartWriter(io.RawIOBase):
     bucket_name: str
     key: str
     content_type: Optional[str] = None

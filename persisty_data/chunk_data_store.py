@@ -37,7 +37,9 @@ class ChunkDataStore(DataStoreABC):
         meta = getattr(self, "_meta", None)
         if meta is None:
             # noinspection PyAttributeOutsideInit
-            meta = self._meta = data_item_meta(self.name, self.max_item_size, self.content_types)
+            meta = self._meta = data_item_meta(
+                self.name, self.max_item_size, self.content_types
+            )
         return meta
 
     def create(self, item: DataItemABC) -> Optional[DataItemABC]:
@@ -97,13 +99,12 @@ class ChunkDataStore(DataStoreABC):
         result_set.results = [self._chunk_data_item(c) for c in result_set.results]
         return result_set
 
-    def get_data_writer(self, key: str, content_type: Optional[str] = None):
-        create = not self.content_meta_store.read(key)
+    def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
         return _ChunkWriter(
             content_meta_store=self.content_meta_store,
             chunk_store=self.chunk_store,
             key=key,
-            create=create,
+            create=not existing_item,
             chunk_size=self.chunk_size,
             content_type=content_type,
             max_item_size=self.max_item_size,

@@ -30,7 +30,9 @@ class DirectoryDataStore(DataStoreABC):
         meta = getattr(self, "_meta", None)
         if meta is None:
             # noinspection PyAttributeOutsideInit
-            meta = self._meta = data_item_meta(self.name, self.max_item_size, self.content_types)
+            meta = self._meta = data_item_meta(
+                self.name, self.max_item_size, self.content_types
+            )
         return meta
 
     def create(self, item: DataItemABC) -> Optional[DataItemABC]:
@@ -55,7 +57,7 @@ class DirectoryDataStore(DataStoreABC):
         return True
 
     def count(self, search_filter: SearchFilterABC[DataItemABC] = INCLUDE_ALL) -> int:
-        result = sum(1, self.search_all(search_filter))
+        result = sum(1 for _ in self.search_all(search_filter))
         return result
 
     def search_all(
@@ -73,7 +75,7 @@ class DirectoryDataStore(DataStoreABC):
         for root, _, files in os.walk(self.directory):
             for file in files:
                 path = Path(root, file)
-                key = str(Path(root, file))
+                key = str(os.path.relpath(path, self.directory))
                 item = FileDataItem(path=path, key=key)
                 if search_filter.match(item, meta.attrs):
                     yield item
@@ -87,6 +89,9 @@ class DirectoryDataStore(DataStoreABC):
         path = self._key_to_path(key)
         path.parent.mkdir(parents=True, exist_ok=True)
         return open(path, "wb")
+
+    def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
+        return self.get_data_writer(key, content_type)
 
     def copy_data_from(self, source: DataItemABC):
         if self.content_types and source.content_type not in self.content_types:

@@ -8,7 +8,13 @@ from typing import Optional, FrozenSet
 from marshy.marshaller.obj_marshaller import ObjMarshaller, attr_config
 from marshy.marshaller_context import MarshallerContext
 from schemey import schema_from_type
-from schemey.schema import str_schema, int_schema, datetime_schema, optional_schema, Schema
+from schemey.schema import (
+    str_schema,
+    int_schema,
+    datetime_schema,
+    optional_schema,
+    Schema,
+)
 
 from persisty.attr.attr import Attr
 from persisty.attr.attr_filter_op import (
@@ -142,13 +148,15 @@ DATA_ITEM_META = StoreMeta(
 )
 
 
-def data_item_meta(name: str, max_size: int, content_types: Optional[FrozenSet[str]] = None):
+def data_item_meta(
+    name: str, max_size: int, content_types: Optional[FrozenSet[str]] = None
+):
     attrs = []
     for attr in DATA_ITEM_META.attrs:
         if attr.name == "content_type" and content_types:
             schema = Schema({"enum": list(content_types)}, str)
-            #values = ((c.replace('/', '_').upper(), c) for c in content_types)
-            #schema = schema_from_type(Enum(f"{name}ContentTypes", values))
+            # values = ((c.replace('/', '_').upper(), c) for c in content_types)
+            # schema = schema_from_type(Enum(f"{name}ContentTypes", values))
             attr = dataclasses.replace(attr, schema=schema)
         elif attr.name == "size":
             attr = dataclasses.replace(attr, schema=int_schema(0, max_size))

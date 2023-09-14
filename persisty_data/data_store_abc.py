@@ -11,13 +11,19 @@ _DataStoreFactoryABC = "persisty_data.DataStoreFactoryABC"
 
 
 class DataStoreABC(StoreABC[DataItemABC], ABC):
-    @abstractmethod
+
     def get_data_writer(self, key: str, content_type: Optional[str] = None):
-        pass
+        existing_item = self.read(key)
+        writer = self._get_data_writer(key, content_type, existing_item)
+        return writer
+
+    @abstractmethod
+    def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
+        """ Get a data writer - internal call where existing item is already loaded if present. """
 
     def copy_data_from(self, source: DataItemABC):
         """
-        Copy the data from the item given into this data store - implementions may use OS features to speed this up
+        Copy the data from the item given into this data store - implementations may use OS features to speed this up
         """
         with source.get_data_reader() as reader:
             with self.get_data_writer(source.key, source.content_type) as writer:
@@ -25,7 +31,7 @@ class DataStoreABC(StoreABC[DataItemABC], ABC):
 
     def create_default_factory(self) -> _DataStoreFactoryABC:
         from persisty_data.hosted_data_store_factory import hosted_data_store_factory
-
+        This is wrong - maybe we should replace it with a flag indicating hosting is needed.
         return hosted_data_store_factory(DefaultStoreFactory(self))
 
 

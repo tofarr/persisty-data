@@ -49,7 +49,7 @@ class S3DataStoreFactory(DataStoreFactoryABC):
             Bucket=self.bucket_name,
             Key=key,
             ExpiresIn=self.upload_expire_in,
-            Conditions=conditions
+            Conditions=conditions,
         )
         return UploadForm(
             url=response["url"],

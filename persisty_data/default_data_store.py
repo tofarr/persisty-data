@@ -13,7 +13,10 @@ from persisty_data.directory_data_store import DirectoryDataStore
 
 
 def default_data_store(
-    name: str, target: Dict, max_item_size: int = 1024 * 1024 * 50, content_types: Optional[FrozenSet[str]] = None
+    name: str,
+    target: Dict,
+    max_item_size: int = 1024 * 1024 * 50,
+    content_types: Optional[FrozenSet[str]] = None,
 ) -> DataStoreABC:
     """
     Create a default data store. If there is an PERSISTY_DATA_S3_BUCKET value environment variable, then use it.
@@ -28,11 +31,11 @@ def default_data_store(
             name=name,
             bucket_name=persisty_data_s3_bucket,
             max_item_size=max_item_size,
-            content_types=content_types
+            content_types=content_types,
         )
     persisty_data_directory = os.environ.get("PERSISTY_DATA_DIRECTORY")
     if persisty_data_directory:
-        return DirectoryDataStore(name=name, directory=Path(persisty_data_directory), max_item_size=max_item_size, content_types=content_types)
+        return DirectoryDataStore(name=name, directory=Path(persisty_data_directory, name), max_item_size=max_item_size, content_types=content_types)
     content_meta_store = DefaultStore(
         dataclasses.replace(get_meta(ContentMeta), name=name + "_content_meta")
     )
