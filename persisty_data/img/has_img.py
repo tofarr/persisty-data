@@ -13,5 +13,4 @@ class HasImg(HasUrl):
         key_attr_schema = json_schema.get("properties").get(self.key_attr_name)
         factory = self.get_linked_data_store_factory()
         schema = factory.get_json_schema()
-        schema["resizedImgUrl"] = self.resized_img_url
         key_attr_schema["persistyImgStore"] = schema
