@@ -12,6 +12,8 @@ class BytesMarshaller(MarshallerABC[bytes]):
         super().__init__(bytes)
 
     def load(self, item: str) -> bytes:
+        if isinstance(item, bytes):
+            return item
         base64_bytes = item.encode("utf-8")
         raw_bytes = base64.b64decode(base64_bytes)
         return raw_bytes
