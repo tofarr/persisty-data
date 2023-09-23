@@ -13,7 +13,6 @@ from persisty_data.upload_form import UploadForm
 
 
 class DataStoreFactoryABC(StoreFactoryABC[DataItemABC]):
-
     @abstractmethod
     def create(self, authorization: Optional[Authorization]) -> Optional[DataStoreABC]:
         """Create a new store instance"""

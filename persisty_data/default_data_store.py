@@ -35,7 +35,12 @@ def default_data_store(
         )
     persisty_data_directory = os.environ.get("PERSISTY_DATA_DIRECTORY")
     if persisty_data_directory:
-        return DirectoryDataStore(name=name, directory=Path(persisty_data_directory, name), max_item_size=max_item_size, content_types=content_types)
+        return DirectoryDataStore(
+            name=name,
+            directory=Path(persisty_data_directory, name),
+            max_item_size=max_item_size,
+            content_types=content_types,
+        )
     content_meta_store = DefaultStore(
         dataclasses.replace(get_meta(ContentMeta), name=name + "_content_meta")
     )

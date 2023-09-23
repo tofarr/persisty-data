@@ -70,7 +70,7 @@ class ImgResizer:
         width = width or self.max_width
         height = height or self.max_height
         if width > self.max_width or height > self.max_height:
-            raise PersistyError('invalid_dimensions')
+            raise PersistyError("invalid_dimensions")
         img_type = self.get_img_type(content_type)
         resized_image_key = self.get_resized_image_key(
             store_name, key, width, height, img_type

@@ -25,5 +25,5 @@ def configure_serverless(context: MarshallerContext):
         from persisty_data.s3_yml_config import S3YmlConfig
 
         register_impl(YmlConfigABC, S3YmlConfig, context)
-    except ImportError as e:
+    except ModuleNotFoundError as e:
         raise_non_ignored(e)

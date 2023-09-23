@@ -204,17 +204,19 @@ class S3DataStore(DataStoreABC):
                 return
 
     def get_data_writer(self, key: str, content_type: Optional[str] = None):
-        return _MultipartWriter(
-            self.bucket_name,
-            key,
-            content_type
-        )
+        return _MultipartWriter(self.bucket_name, key, content_type)
 
-    def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
+    def _get_data_writer(
+        self,
+        key: str,
+        content_type: Optional[str],
+        existing_item: Optional[DataItemABC],
+    ):
         return self.get_data_writer(key, content_type)
 
     def get_hosting_wrapper(self) -> _DataStoreFactoryABC:
         from persisty_data.s3_data_store_factory import s3_data_store_factory
+
         return s3_data_store_factory
 
 

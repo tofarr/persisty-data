@@ -37,7 +37,7 @@ class S3DataStoreFactory(DataStoreFactoryABC):
         conditions = self._build_conditions(meta)
         kwargs = {
             "Bucket": self.bucket_name,
-            "Key":  key,
+            "Key": key,
             "ExpiresIn": self.upload_expire_in,
         }
         if conditions:
@@ -99,5 +99,7 @@ class S3DataStoreFactory(DataStoreFactoryABC):
 def s3_data_store_factory(factory: DataStoreFactoryABC) -> DataStoreFactoryABC:
     return S3DataStoreFactory(
         factory=factory,
-        bucket_name=os.environ.get(f"PERSISTY_DATA_S3_BUCKET_{factory.get_meta().name.upper()}")
+        bucket_name=os.environ.get(
+            f"PERSISTY_DATA_S3_BUCKET_{factory.get_meta().name.upper()}"
+        ),
     )

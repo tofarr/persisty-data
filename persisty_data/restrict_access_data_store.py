@@ -12,10 +12,15 @@ from persisty_data.data_store_abc import DataStoreABC, HostingWrapper
 class RestrictAccessDataStore(DataStoreABC, RestrictAccessStore[DataItemABC]):
     store: DataStoreABC
 
-    def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
+    def _get_data_writer(
+        self,
+        key: str,
+        content_type: Optional[str],
+        existing_item: Optional[DataItemABC],
+    ):
         store_access = self.get_store_access()
         if not (store_access.updatable if existing_item else store_access.creatable):
-            raise PersistyError('unavailable_operation')
+            raise PersistyError("unavailable_operation")
         return self.store._get_data_writer(key, content_type, existing_item)
 
     def get_hosting_wrapper(self) -> HostingWrapper:

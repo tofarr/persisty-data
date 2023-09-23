@@ -90,7 +90,12 @@ class DirectoryDataStore(DataStoreABC):
         path.parent.mkdir(parents=True, exist_ok=True)
         return open(path, "wb")
 
-    def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
+    def _get_data_writer(
+        self,
+        key: str,
+        content_type: Optional[str],
+        existing_item: Optional[DataItemABC],
+    ):
         return self.get_data_writer(key, content_type)
 
     def copy_data_from(self, source: DataItemABC):

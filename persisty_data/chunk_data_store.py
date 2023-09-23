@@ -99,7 +99,12 @@ class ChunkDataStore(DataStoreABC):
         result_set.results = [self._chunk_data_item(c) for c in result_set.results]
         return result_set
 
-    def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
+    def _get_data_writer(
+        self,
+        key: str,
+        content_type: Optional[str],
+        existing_item: Optional[DataItemABC],
+    ):
         return _ChunkWriter(
             content_meta_store=self.content_meta_store,
             chunk_store=self.chunk_store,

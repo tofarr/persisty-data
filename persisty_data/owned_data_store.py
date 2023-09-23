@@ -117,7 +117,12 @@ class OwnedDataStore(DataStoreABC, WrapperStoreABC[DataItemABC]):
         self._check_key_for_edit(key)
         return self.store.get_data_writer(key, content_type)
 
-    def _get_data_writer(self, key: str, content_type: Optional[str], existing_item: Optional[DataItemABC]):
+    def _get_data_writer(
+        self,
+        key: str,
+        content_type: Optional[str],
+        existing_item: Optional[DataItemABC],
+    ):
         self._check_key_for_edit(key)
         return self.store._get_data_writer(key, content_type, existing_item)
 
