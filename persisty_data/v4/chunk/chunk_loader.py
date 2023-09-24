@@ -30,17 +30,19 @@ class ChunkLoader(LoaderABC):
     def copy_from_store(self, source_key: str, destination: IOBase):
         file_handle = self.file_handle_store.read(source_key)
         if not file_handle:
-            raise PersistyError('not_found')
+            raise PersistyError("not_found")
         if not file_handle.status == FileHandleStatus.READY:
-            raise PersistyError('not_ready')
-        search_filter = AttrFilter('stream_id', AttrFilterOp.eq, file_handle.stream_id)
-        search_order = SearchOrder((SearchOrderAttr('part_number'),))
+            raise PersistyError("not_ready")
+        search_filter = AttrFilter("stream_id", AttrFilterOp.eq, file_handle.stream_id)
+        search_order = SearchOrder((SearchOrderAttr("part_number"),))
         chunks = self.chunk_store.search_all(search_filter, search_order)
         for chunk in chunks:
             destination.write(chunk.data)
 
     def copy_to_store(self, source: Callable[[], IOBase], destination_key: str):
-        file_handle_update_class = self.file_handle_store.get_meta().get_update_dataclass()
+        file_handle_update_class = (
+            self.file_handle_store.get_meta().get_update_dataclass()
+        )
         # noinspection PyBroadException
         try:
             stream_id = str(uuid4())
@@ -57,7 +59,7 @@ class ChunkLoader(LoaderABC):
                             status=FileHandleStatus.READY,
                             stream_id=stream_id,
                             size_in_bytes=size_in_bytes,
-                            etag=etag.hexdigest()
+                            etag=etag.hexdigest(),
                         )
                         self.file_handle_store.update(file_handle)
                         return
@@ -75,9 +77,7 @@ class ChunkLoader(LoaderABC):
                     part_number += 1
         except Exception as e:
             file_handle = file_handle_update_class(
-                key=destination_key,
-                stream_id=None,
-                status=FileHandleStatus.ERROR
+                key=destination_key, stream_id=None, status=FileHandleStatus.ERROR
             )
             self.file_handle_store.update(file_handle)
             raise e

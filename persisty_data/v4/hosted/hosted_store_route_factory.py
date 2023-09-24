@@ -10,8 +10,9 @@ from persisty_data.v4.file_handle import FileHandle
 from persisty_data.v4.hosted.file_handle_response import file_handle_response
 
 
-def create_route_for_download(download_path: str, store_meta: StoreMeta, authorizer: AuthorizerABC):
-
+def create_route_for_download(
+    download_path: str, store_meta: StoreMeta, authorizer: AuthorizerABC
+):
     def download(request: Request) -> Response:
         key = request.path_params.get("key")
         token = request.path_params.get("token")
@@ -36,7 +37,9 @@ def create_route_for_download(download_path: str, store_meta: StoreMeta, authori
     )
 
 
-def create_route_for_upload(upload_path: str, store_meta: StoreMeta, authorizer: AuthorizerABC):
+def create_route_for_upload(
+    upload_path: str, store_meta: StoreMeta, authorizer: AuthorizerABC
+):
     async def upload(request: Request) -> Response:
         form = await request.form()
         token = form.get("token")
@@ -50,9 +53,7 @@ def create_route_for_upload(upload_path: str, store_meta: StoreMeta, authorizer:
         form_file: UploadFile = form["file"]
         file_handle_class = store.get_meta().get_create_dataclass()
         file_handle = file_handle_class(
-            key=key,
-            handle=form_file,
-            content_type=form_file.content_type
+            key=key, handle=form_file, content_type=form_file.content_type
         )
         if operation == "create":
             file_handle = store.create(file_handle)

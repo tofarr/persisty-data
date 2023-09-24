@@ -1,9 +1,6 @@
-
-
 @action
 def begin_upload():
     pass
-
 
 
 @action

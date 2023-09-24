@@ -16,7 +16,11 @@ class FileHandleResponse(Response):
     # pylint: disable=W0231
     # noinspection PyMissingConstructor
     def __init__(
-        self, status_code, headers, file_handle: FileHandle, buffer_size: int = 64 * 1024
+        self,
+        status_code,
+        headers,
+        file_handle: FileHandle,
+        buffer_size: int = 64 * 1024,
     ):
         self.status_code = status_code
         self._headers = MutableHeaders(headers=headers)

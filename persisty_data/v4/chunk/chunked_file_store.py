@@ -114,7 +114,12 @@ class ChunkedFileStore(WrapperStoreABC[FileHandle]):
                 raise PersistyError("invalid_handle")
 
             return urlopen(handle)
-        chunk_loader = ChunkLoader(self.file_handle_store, self.chunk_store, self.chunk_size, self.max_file_size)
+        chunk_loader = ChunkLoader(
+            self.file_handle_store,
+            self.chunk_store,
+            self.chunk_size,
+            self.max_file_size,
+        )
         if isinstance(handle, Path):
             # noinspection PyTypeChecker
             chunk_loader.copy_to_store(key, lambda: open(handle, "rb"))

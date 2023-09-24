@@ -30,7 +30,7 @@ class FileHandle:
 
     def open_for_read(self):
         if self.status != FileHandleStatus.READY or not self.handle:
-            raise PersistyError('not_ready')
+            raise PersistyError("not_ready")
         handle = self.handle
         if isinstance(handle, str):
             if not handle.startswith("http://") and not handle.startswith("https://"):
@@ -39,5 +39,6 @@ class FileHandle:
         if isinstance(handle, Path):
             return open(handle, "rb")
         from starlette.datastructures import UploadFile
+
         if isinstance(handle, UploadFile):
             return handle

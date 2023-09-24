@@ -33,7 +33,10 @@ class ChunkedStoreActionFactoryABC(ActionFactoryABC, ABC):
 
     def create_actions(self, store: StoreABC[FileHandle]) -> Iterator[Action]:
         store_access = store.get_meta().store_security.get_api_access()
-        editable = (store_access.create_filter is not EXCLUDE_ALL or store_access.update_filter is not EXCLUDE_ALL)
+        editable = (
+            store_access.create_filter is not EXCLUDE_ALL
+            or store_access.update_filter is not EXCLUDE_ALL
+        )
         if editable:
             yield self.action_for_begin_upload(store)
             yield self.action_for_finish_upload(store)
@@ -45,18 +48,18 @@ class ChunkedStoreActionFactoryABC(ActionFactoryABC, ABC):
         @action(
             name=f"{store_meta.name}_begin_upload",
             description=f"Begin a new upload to {store_meta.name}",
-            triggers=WEB_POST
+            triggers=WEB_POST,
         )
         def begin_upload(
             file_size: int,
             key: Optional[str] = None,
             content_type: Optional[str] = None,
-            authorization: Optional[Authorization] = None
+            authorization: Optional[Authorization] = None,
         ):
             file_handle = FileHandle(
                 key=key or UNDEFINED,
                 status=FileHandleStatus.WORKING,
-                content_type=content_type
+                content_type=content_type,
             )
             secured_store = store_meta.create_secured_store(authorization)
             item = secured_store.create(file_handle)
@@ -71,9 +74,11 @@ class ChunkedStoreActionFactoryABC(ActionFactoryABC, ABC):
                 key=item.key,
                 expire_at=expire_at,
                 presigned_urls=[
-                    self.create_signed_upload_url(store_meta.name, upload_id, chunk_number, expire_at)
+                    self.create_signed_upload_url(
+                        store_meta.name, upload_id, chunk_number, expire_at
+                    )
                     for chunk_number in range(num_chunks)
-                ]
+                ],
             )
             return chunked_upload
 
@@ -84,13 +89,16 @@ class ChunkedStoreActionFactoryABC(ActionFactoryABC, ABC):
         store_meta = store.get_meta()
         store
 
-
     @abstractmethod
     def action_for_abort_upload(self, store: StoreABC[FileHandle]) -> Action:
-        """ Create an action for creating an upload """
+        """Create an action for creating an upload"""
 
     def create_routes(self, store: StoreABC[FileHandle]) -> Iterator[ROUTE]:
-        from persisty_data.v4.hosted.hosted_store_route_factory import create_route_for_download, create_route_for_upload
+        from persisty_data.v4.hosted.hosted_store_route_factory import (
+            create_route_for_download,
+            create_route_for_upload,
+        )
+
         store_meta = store.get_meta()
         yield create_route_for_download(self.download_path, store_meta, self.authorizer)
         yield create_route_for_upload(self.upload_path, store_meta, self.authorizer)

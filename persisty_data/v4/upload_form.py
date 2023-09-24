@@ -21,8 +21,9 @@ class UploadForm:
     permit_ranges: bool = False
     permit_numbered_parts: bool = False
 
+
 # 2 actions
-#begin upload
-#do upload
+# begin upload
+# do upload
 # complete_upload
 # abort upload
