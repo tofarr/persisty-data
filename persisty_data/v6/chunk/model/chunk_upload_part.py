@@ -9,7 +9,7 @@ from persisty.stored import stored
 from persisty_data.v5.upload_part_number_generator import UploadPartNumberGenerator
 
 
-class UploadPart:
+class ChunkUploadPart:
     """
     Creatable but not updatable or deletable
     """
@@ -17,13 +17,14 @@ class UploadPart:
     id: UUID
     upload_id: UUID
     part_number: int
+    size_in_bytes: int
     upload_url: str
-    max_size: int
     created_at: datetime
+    updated_at: datetime
 
 
-UPLOAD_PART_ACCESS = StoreAccess(update_filter=EXCLUDE_ALL, delete_filter=EXCLUDE_ALL)
-UploadPartStored = stored(
-    UploadPart,
+CHUNK_UPLOAD_PART_ACCESS = StoreAccess(update_filter=EXCLUDE_ALL, delete_filter=EXCLUDE_ALL)
+ChunkUploadPartStored = stored(
+    ChunkUploadPart,
     store_access=NO_UPDATES
 )

@@ -10,13 +10,14 @@ from persisty.security.store_security import INTERNAL_ONLY
 from persisty.stored import stored
 from schemey.schema import int_schema, str_schema
 
+CHUNK_SIZE = 256 * 1024  # 256Kb
+
 
 class Chunk:
     id: UUID
     item_key: str = Attr(updatable=False, schema=str_schema(max_length=255))
-    upload_id: UUID = Attr(updatable=False)
-    part_id: UUID = Attr(updatable=False)
-    stream_id: UUID = Attr(updatable=False)
+    upload_id: str = Attr(updatable=False)
+    part_id: str = Attr(updatable=False)
     part_number: int = Attr(updatable=False, schema=int_schema(minimum=0))
     chunk_number: int = Attr(updatable=False, schema=int_schema(minimum=0))
     # sort key is part_number * 1024 * 1024 + chunk_number - so I guess we can have a max

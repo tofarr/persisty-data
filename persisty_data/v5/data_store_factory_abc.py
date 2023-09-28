@@ -3,10 +3,11 @@ from typing import Tuple, Optional
 
 from persisty.security.store_security_abc import StoreSecurityABC
 from persisty.store.store_abc import StoreABC
+from persisty.store_meta import StoreMeta
 
 
 class DataStoreFactoryABC(ABC):
-    priority:int = 100
+    priority: int = 100
 
     @abstractmethod
     def create_all(
@@ -16,7 +17,7 @@ class DataStoreFactoryABC(ABC):
         permitted_content_types: Optional[Tuple[str, ...]] = None,
         max_size_in_bytes: int = 100 * 1024 * 1024,
         expire_in: Optional[int] = None,
-    ) -> Optional[Tuple[StoreABC, ...]]:
+    ) -> Optional[Tuple[StoreMeta, ...]]:
         """
         create all stores needed to support data : FileHandle, Upload, UploadPart.
         May also require low level chunk stores. Returns None

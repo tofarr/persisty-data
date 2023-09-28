@@ -31,7 +31,7 @@ class ChunkLoader(LoaderABC):
     chunk_part_store: StoreABC[ChunkUploadPart]
     upload_url_pattern: str
     download_url_pattern: str
-    chunk_size: int = 256 * 1024 # 256kb
+    chunk_size: int = 256 * 1024  # 256kb
     max_chunks: int = 1024  # 256Mb
     max_parts: int = 1024  # 256Gb
     upload_expire_in: int = 3600
@@ -54,13 +54,15 @@ class ChunkLoader(LoaderABC):
         self.chunk_store.edit_all(edits)
         self.chunk_part_store.update(upload_part)
 
-    def begin_upload(self, key: Optional[str], content_type: Optional[str], file_size: Optional[int]) -> BeginUploadResult:
+    def begin_upload(
+        self, key: Optional[str], content_type: Optional[str], file_size: Optional[int]
+    ) -> BeginUploadResult:
         create_upload_type = self.chunk_upload_store.get_meta().get_create_dataclass()
         upload = create_upload_type(
             item_key=key,
             content_type=content_type,
             max_part_size_in_bytes=self.chunk_size * self.max_chunks,
-            max_number_of_parts=self.max_parts
+            max_number_of_parts=self.max_parts,
         )
         upload = self.chunk_upload_store.create(upload)
         self._create_initial_parts(upload, file_size)
@@ -74,15 +76,12 @@ class ChunkLoader(LoaderABC):
                     key=str(r.id),
                     item=r.to_part(self.upload_url_pattern),
                     updatable=False,
-                    deletable=False
+                    deletable=False,
                 )
                 for r in initial_parts.results
-            ]
+            ],
         )
-        result = BeginUploadResult(
-            upload=upload,
-            initial_parts=initial_parts
-        )
+        result = BeginUploadResult(upload=upload, initial_parts=initial_parts)
         return result
 
     def finish_upload(self, upload_id: UUID) -> Optional[FileHandle]:
@@ -105,7 +104,7 @@ class ChunkLoader(LoaderABC):
             if not data:
                 return
             if chunk_number > self.max_chunks:
-                raise PersistyError('too_large')
+                raise PersistyError("too_large")
             chunk = chunk_type(
                 id=uuid4(),
                 item_key=upload_part.item_key,
@@ -124,7 +123,7 @@ class ChunkLoader(LoaderABC):
     def _create_initial_parts(self, upload: ChunkUpload, file_size: Optional[int]):
         num_parts = math.ceil(file_size / (self.chunk_size * self.max_chunks))
         if num_parts >= self.max_parts:
-            raise PersistyError('size_exceeded')
+            raise PersistyError("size_exceeded")
         part_numbers = range(1, num_parts + 1)
         part_type = self.chunk_part_store.get_meta().get_create_dataclass()
         edits = (
@@ -132,7 +131,7 @@ class ChunkLoader(LoaderABC):
                 create_item=part_type(
                     item_key=upload.item_key,
                     upload_id=upload.id,
-                    part_number=part_number
+                    part_number=part_number,
                 )
             )
             for part_number in part_numbers
