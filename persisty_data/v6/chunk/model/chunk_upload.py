@@ -48,6 +48,14 @@ class ChunkUpload(Upload):
         get_meta(self.__class__).create_store().delete(self.id)
         return file_handle
 
+    def after_delete(self):
+        file_handle_store = self.get_file_handle_store_meta().create_store()
+        search_filter = AttrFilter("upload_id", AttrFilterOp.eq, str(self.id))
+        file_handle_result_set = file_handle_store.search(search_filter)
+        if not file_handle_result_set.results:
+            chunk_store = self.get_chunk_store_meta().create_store()
+            chunk_store.delete_all(search_filter)
+
     @classmethod
     def get_file_handle_store_meta(cls):
         file_handle_store_meta = getattr(cls, "__file_handle_store_meta__", None)

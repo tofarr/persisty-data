@@ -1,7 +1,6 @@
 from typing import AsyncIterator
 from uuid import uuid4
 
-from persisty.attr.attr import Attr
 from persisty.attr.attr_filter import AttrFilter
 from persisty.attr.attr_filter_op import AttrFilterOp
 from persisty.finder.stored_finder_abc import find_stored_by_name

@@ -11,6 +11,7 @@ from persisty.stored import stored
 from servey.security.authorization import Authorization
 
 from persisty_data.v6.generator.content_type_generator import ContentTypeGenerator
+from persisty_data.v6.generator.future_timestamp_generator import FutureTimestampGenerator
 from persisty_data.v6.model.file_handle import FileHandle
 
 
@@ -27,7 +28,7 @@ class Upload:
     max_part_size_in_bytes: int = 256 * 1024  # 256kb
     max_number_of_parts: int = 1024  # Default max size is 256Mb
     subject_id: Optional[str] = None
-    expire_at: datetime
+    expire_at: datetime = Attr(create_generator=FutureTimestampGenerator(3600))
     created_at: datetime
 
     def finish_upload(self, authorization: Optional[Authorization]) -> FileHandle:

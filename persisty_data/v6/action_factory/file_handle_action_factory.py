@@ -17,6 +17,8 @@ from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse
 from starlette.routing import Route
 
+from persisty_data.v6.action_factory.after_delete_action import create_action_for_after_delete
+from persisty_data.v6.action_factory.reaper_action import create_reaper_action
 from persisty_data.v6.model.file_handle import FileHandle
 
 
@@ -26,6 +28,10 @@ class FileHandleActionFactory(ActionFactoryABC):
 
     def create_actions(self, store: _StoreABC) -> Iterator[Action]:
         yield from self.action_factory.create_actions(store)
+        after_delete_action = create_action_for_after_delete(store.get_meta())
+        if after_delete_action:
+            yield after_delete_action
+        yield create_reaper_action(store.get_meta())
 
     def create_routes(self, store: _StoreABC) -> Iterator[ROUTE]:
         yield from self.action_factory.create_routes(store)

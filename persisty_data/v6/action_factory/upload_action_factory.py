@@ -11,6 +11,8 @@ from servey.security.authorization import Authorization
 from servey.trigger.web_trigger import WEB_POST
 from starlette.routing import Route
 
+from persisty_data.v6.action_factory.file_handle_action_factory import create_action_for_after_delete
+from persisty_data.v6.action_factory.reaper_action import create_reaper_action
 from persisty_data.v6.chunk.model.chunk_file_handle import ChunkFileHandle
 from persisty_data.v6.chunk.model.chunk_upload import ChunkUpload
 
@@ -27,6 +29,10 @@ class UploadActionFactory(ActionFactoryABC):
         api_access = upload_store_meta.store_security.get_api_access()
         if api_access.create_filter is not EXCLUDE_ALL:
             yield action_for_upload_finish(upload_store_meta)
+        after_delete_action = create_action_for_after_delete(store.get_meta())
+        if after_delete_action:
+            yield after_delete_action
+        yield create_reaper_action(store.get_meta())
 
     def create_routes(self, store: StoreABC) -> Iterator[Route]:
         yield from self.action_factory.create_routes(store)
