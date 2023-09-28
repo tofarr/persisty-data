@@ -1,4 +1,3 @@
-
 from typing import Iterator
 
 from persisty.servey.action_factory_abc import ActionFactoryABC, _StoreABC, ROUTE

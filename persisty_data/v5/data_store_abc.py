@@ -19,33 +19,66 @@ class DataStoreABC(ABC):
     """
 
     def get_name(self) -> str:
-        """ Get the name of this data store """
+        """Get the name of this data store"""
 
     @abstractmethod
-    def upload_create(self, key: Optional[str], content_type: Optional[str], file_size: Optional[int], authorization: Optional[Authorization] = None) -> BeginUploadResult:
-        """ Begin a new upload to this data store """
+    def upload_create(
+        self,
+        key: Optional[str],
+        content_type: Optional[str],
+        file_size: Optional[int],
+        authorization: Optional[Authorization] = None,
+    ) -> BeginUploadResult:
+        """Begin a new upload to this data store"""
 
     @abstractmethod
-    def upload_finish(self, upload_id: UUID, authorization: Optional[Authorization] = None) -> FileHandle:
-        """ Finish an upload to this data store """
-    @abstractmethod
-    def upload_search(self, search_filter: SearchFilterABC[Upload], search_order: SearchOrder[Upload], page_key: str, limit: Optional[int] = None, authorization: Optional[Authorization] = None) -> ResultSet[Result[Upload]]:
-        """ Search uploads of this data store """
+    def upload_finish(
+        self, upload_id: UUID, authorization: Optional[Authorization] = None
+    ) -> FileHandle:
+        """Finish an upload to this data store"""
 
     @abstractmethod
-    def upload_count(self, search_filter: SearchFilterABC[Upload], authorization: Optional[Authorization] = None) -> int:
-        """ Count uploads to this data store """
+    def upload_search(
+        self,
+        search_filter: SearchFilterABC[Upload],
+        search_order: SearchOrder[Upload],
+        page_key: str,
+        limit: Optional[int] = None,
+        authorization: Optional[Authorization] = None,
+    ) -> ResultSet[Result[Upload]]:
+        """Search uploads of this data store"""
 
     @abstractmethod
-    def upload_part_create(self, upload_id: int, authorization: Optional[Authorization] = None):
+    def upload_count(
+        self,
+        search_filter: SearchFilterABC[Upload],
+        authorization: Optional[Authorization] = None,
+    ) -> int:
+        """Count uploads to this data store"""
+
+    @abstractmethod
+    def upload_part_create(
+        self, upload_id: int, authorization: Optional[Authorization] = None
+    ):
         """ """
 
     @abstractmethod
-    def upload_part_search(self, search_filter: SearchFilterABC[Upload], search_order: SearchOrder[Upload], page_key: str, limit: Optional[int] = None, authorization: Optional[Authorization] = None) -> ResultSet[Result[UploadPart]]:
+    def upload_part_search(
+        self,
+        search_filter: SearchFilterABC[Upload],
+        search_order: SearchOrder[Upload],
+        page_key: str,
+        limit: Optional[int] = None,
+        authorization: Optional[Authorization] = None,
+    ) -> ResultSet[Result[UploadPart]]:
         """ """
 
     @abstractmethod
-    def upload_part_count(self, search_filter: SearchFilterABC[Upload], authorization: Optional[Authorization] = None) -> int:
+    def upload_part_count(
+        self,
+        search_filter: SearchFilterABC[Upload],
+        authorization: Optional[Authorization] = None,
+    ) -> int:
         """ """
 
     @abstractmethod
@@ -60,7 +93,7 @@ class DataStoreABC(ABC):
 
     @abstractmethod
     def get_file_handle_store(self) -> StoreABC[FileHandle]:
-        """ Get the (read only) file handle store """
+        """Get the (read only) file handle store"""
 
     def get_actions(self) -> List[Action]:
         """ """

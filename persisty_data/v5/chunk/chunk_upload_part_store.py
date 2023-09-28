@@ -12,7 +12,10 @@ from persisty.store.store_abc import StoreABC
 from persisty.store_meta import StoreMeta, get_meta
 
 from persisty_data.v5.chunk.model.chunk_upload import ChunkUpload
-from persisty_data.v5.chunk.model.chunk_upload_part import ChunkUploadPart, to_upload_part
+from persisty_data.v5.chunk.model.chunk_upload_part import (
+    ChunkUploadPart,
+    to_upload_part,
+)
 from persisty_data.v5.upload_part import UploadPart, UploadPartStored
 
 

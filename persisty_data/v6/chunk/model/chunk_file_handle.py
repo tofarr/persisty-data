@@ -1,25 +1,30 @@
-from datetime import datetime
-from typing import Optional
-from uuid import UUID
+from pathlib import Path
+from typing import BinaryIO
+from urllib.request import urlopen
 
-from persisty.security.store_access import READ_ONLY
-from persisty.stored import stored
+from persisty.errors import PersistyError
+
+from persisty_data.v6.model.file_handle import FileHandle
 
 
-class ChunkFileHandle:
+class ChunkFileHandle(FileHandle):
     """
     File handle - not directly creatable or updatable
     """
 
-    key: str
-    upload_id: UUID
-    content_type: Optional[str] = None  # Can limit allowed content types using schema
-    size_in_bytes: int  # can limit size using schema
-    etag: str
-    download_url: str  # may be signed or not depending on implementation
-    created_at: datetime
-    updated_at: datetime
-    # expire_at: Optional[datetime] = None
+    upload_id: str
 
-
-StoredFileHandle = stored(ChunkFileHandle, store_security=READ_ONLY)
+    def get_reader(self) -> BinaryIO:
+        """
+        Get a reader for this file (May read locally or remote - default implementation tries to read download url
+        """
+        download_url = self.download_url
+        if isinstance(download_url, str):
+            # noinspection HttpUrlsUsage
+            if not download_url.startswith("http://") and not download_url.startswith(
+                "https://"
+            ):
+                raise PersistyError("invalid_download_url")
+            return urlopen(download_url)
+        if isinstance(download_url, Path):
+            return open(download_url, "rb")

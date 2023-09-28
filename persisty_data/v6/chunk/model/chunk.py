@@ -15,7 +15,6 @@ CHUNK_SIZE = 256 * 1024  # 256Kb
 
 class Chunk:
     id: UUID
-    item_key: str = Attr(updatable=False, schema=str_schema(max_length=255))
     upload_id: str = Attr(updatable=False)
     part_id: str = Attr(updatable=False)
     part_number: int = Attr(updatable=False, schema=int_schema(minimum=0))
@@ -38,9 +37,9 @@ def create_stored_chunk_type(store_name: str):
             AttrIndex("part_id"),
             PartitionSortIndex("part_id", "sort_key"),
             UniqueIndex(("part_id", "sort_key")),
-            AttrIndex("stream_id"),
-            PartitionSortIndex("stream_id", "sort_key"),
-            UniqueIndex(("stream_id", "sort_key")),
+            AttrIndex("upload_id"),
+            PartitionSortIndex("upload_id", "sort_key"),
+            UniqueIndex(("upload_id", "sort_key")),
         ),
         store_access=NO_UPDATES,
         store_security=INTERNAL_ONLY,

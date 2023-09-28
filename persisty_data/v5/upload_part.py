@@ -23,7 +23,4 @@ class UploadPart:
 
 
 UPLOAD_PART_ACCESS = StoreAccess(update_filter=EXCLUDE_ALL, delete_filter=EXCLUDE_ALL)
-UploadPartStored = stored(
-    UploadPart,
-    store_access=NO_UPDATES
-)
+UploadPartStored = stored(UploadPart, store_access=NO_UPDATES)

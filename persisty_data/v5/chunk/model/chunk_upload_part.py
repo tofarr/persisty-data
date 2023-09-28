@@ -28,6 +28,7 @@ class ChunkUploadPart:
     max_size: int
     created_at: datetime
 
+
 # Maybe the secured store should produce a meta override store... with the meta override store copying on input and output
 # Do we have 2? an internal and an external? That feels wrong...
 # Do we make stream_id, part_number, upload_url, max_size always generated?
@@ -48,14 +49,21 @@ def chunk_upload_part(upload_part: UploadPart, stream_id: UUID) -> ChunkUploadPa
     return result
 """
 
+
 def to_upload_part(chunk_upload_part: ChunkUploadPart) -> UploadPart:
     result = UploadPartStored(
-        **{k: v for k, v in dataclasses.asdict(chunk_upload_part).items() if k != "stream_id"}
+        **{
+            k: v
+            for k, v in dataclasses.asdict(chunk_upload_part).items()
+            if k != "stream_id"
+        }
     )
     return result
 
+
 def to_chunk_upload_part(upload_part: UploadPart):
     pass
+
 
 def create_stored_chunk_upload_part_type(
     store_name: str,
