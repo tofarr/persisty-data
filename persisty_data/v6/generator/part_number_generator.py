@@ -17,5 +17,5 @@ class PartNumberGenerator(AttrValueGeneratorABC):
                 self.key_attr, AttrFilterOp.eq, getattr(item, self.key_attr)
             )
             store_meta = get_meta(item)
-            value = store_meta.create_store().count(search_filter)
+            value = store_meta.create_store().count(search_filter) + 1
         return value

@@ -20,7 +20,7 @@ class UploadPart:
     Creatable but not updatable or deletable
     """
 
-    id: UUID
+    id: str
     subject_id: str
     upload_id: str
     part_number: int = Attr(create_generator=PartNumberGenerator("upload_id"))

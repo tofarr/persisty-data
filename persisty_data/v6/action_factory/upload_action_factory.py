@@ -13,8 +13,8 @@ from starlette.routing import Route
 
 from persisty_data.v6.action_factory.file_handle_action_factory import create_action_for_after_delete
 from persisty_data.v6.action_factory.reaper_action import create_reaper_action
-from persisty_data.v6.chunk.model.chunk_file_handle import ChunkFileHandle
-from persisty_data.v6.chunk.model.chunk_upload import ChunkUpload
+from persisty_data.v6.chunk.chunk_file_handle import ChunkFileHandle
+from persisty_data.v6.chunk.chunk_upload import ChunkUpload
 
 
 @dataclass
@@ -24,7 +24,7 @@ class UploadActionFactory(ActionFactoryABC):
     def create_actions(self, store: StoreABC) -> Iterator[Action]:
         yield from self.action_factory.create_actions(
             store
-        )  # allow create, read and search.
+        )  # allow create, read, search and count.
         upload_store_meta = store.get_meta()
         api_access = upload_store_meta.store_security.get_api_access()
         if api_access.create_filter is not EXCLUDE_ALL:

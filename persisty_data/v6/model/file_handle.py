@@ -1,4 +1,5 @@
 from datetime import datetime
+from io import IOBase
 from pathlib import Path
 from typing import Optional, Type, BinaryIO
 from urllib.request import urlopen
@@ -39,7 +40,7 @@ class FileHandle:
     updated_at: datetime
     expire_at: Optional[datetime] = None
 
-    def get_reader(self) -> BinaryIO:
+    def get_reader(self) -> IOBase:
         """
         Get a reader for this file (May read locally or remote - default implementation tries to read download url
         """
@@ -52,11 +53,8 @@ class FileHandle:
                 raise PersistyError("invalid_download_url")
             return urlopen(download_url)
         if isinstance(download_url, Path):
+            # noinspection PyTypeChecker
             return open(download_url, "rb")
-
-    @classmethod
-    def create_file_handle(cls, upload: Upload, authorization: Optional[Authorization]):
-        raise NotImplementedError()
 
 
 def create_stored_file_handle_type(

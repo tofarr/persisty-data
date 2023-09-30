@@ -14,7 +14,7 @@ from starlette.requests import Request
 from starlette.responses import Response, JSONResponse
 from starlette.routing import Route
 
-from persisty_data.v6.chunk.model.chunk import CHUNK_SIZE
+from persisty_data.v6.chunk.chunk import CHUNK_SIZE
 
 
 @dataclass
@@ -22,7 +22,7 @@ class UploadPartActionFactory(ActionFactoryABC):
     action_factory: ActionFactoryABC = field(default_factory=ActionFactory)
 
     def create_actions(self, store: StoreABC) -> Iterator[Action]:
-        # allow create, read and search. Upload Part should have status. Empty and filled. should also
+        # allow create, read, search, and count.
         yield from self.action_factory.create_actions(store)
 
     def create_routes(self, store: StoreABC) -> Iterator[Route]:

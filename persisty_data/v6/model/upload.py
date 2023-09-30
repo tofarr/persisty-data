@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Optional, Type
-from uuid import UUID
 
 from persisty.attr.attr import Attr
 from persisty.security.owned_store_security import OwnedStoreSecurity
@@ -20,7 +19,7 @@ class Upload:
     Creatable but not updatable
     """
 
-    id: UUID
+    id: str
     item_key: str
     content_type: Optional[str] = Attr(
         create_generator=ContentTypeGenerator("item_key")
