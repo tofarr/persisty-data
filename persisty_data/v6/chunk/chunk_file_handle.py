@@ -21,13 +21,15 @@ class ChunkFileHandle(FileHandle, ChunkStoreModelABC):
     def get_reader(self) -> IOBase:
         chunk_store_meta = self.get_chunk_store_meta()
         chunk_store = chunk_store_meta.create_store()
-        search_filter = AttrFilter('upload_id', AttrFilterOp.eq, self.upload_id)
-        search_order = SearchOrder((SearchOrderAttr('sort_key'),))
+        search_filter = AttrFilter("upload_id", AttrFilterOp.eq, self.upload_id)
+        search_order = SearchOrder((SearchOrderAttr("sort_key"),))
         chunks = chunk_store.search_all(search_filter, search_order)
         return ChunkReader(chunks)
 
     def after_delete(self):
-        self.get_chunk_store_meta().delete_all(AttrFilter('upload_id', AttrFilterOp.eq, self.upload_id))
+        self.get_chunk_store_meta().delete_all(
+            AttrFilter("upload_id", AttrFilterOp.eq, self.upload_id)
+        )
 
     @classmethod
     def base_store_name(cls):

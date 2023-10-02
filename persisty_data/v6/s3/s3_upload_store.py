@@ -9,11 +9,8 @@ class S3UploadStore(WrapperStoreABC):
     store: StoreABC[S3Upload]
 
     def create(self, item: S3Upload) -> S3Upload:
-
         s3_client = get_s3_client()
         s3_client.create_multipart_upload(
-            Bucket=self.get_bucket_name(),
-            Key=self.item_key,
-            UploadId=self.id
+            Bucket=self.get_bucket_name(), Key=self.item_key, UploadId=self.id
         )
         return self.get_store().create(item)

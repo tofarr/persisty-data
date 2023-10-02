@@ -6,7 +6,6 @@ from persisty_data.v6.model.store_model_abc import StoreModelABC
 
 
 class ChunkStoreModelABC(StoreModelABC, ABC):
-
     @classmethod
     def get_chunk_store_meta(cls):
         chunk_store_meta = getattr(cls, "__chunk_store_meta__", None)

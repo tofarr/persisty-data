@@ -10,7 +10,9 @@ from persisty.stored import stored
 from servey.security.authorization import Authorization
 
 from persisty_data.v6.generator.content_type_generator import ContentTypeGenerator
-from persisty_data.v6.generator.future_timestamp_generator import FutureTimestampGenerator
+from persisty_data.v6.generator.future_timestamp_generator import (
+    FutureTimestampGenerator,
+)
 from persisty_data.v6.model.file_handle import FileHandle
 
 

@@ -11,7 +11,9 @@ from servey.security.authorization import Authorization
 from servey.trigger.web_trigger import WEB_POST
 from starlette.routing import Route
 
-from persisty_data.v6.action_factory.file_handle_action_factory import create_action_for_after_delete
+from persisty_data.v6.action_factory.file_handle_action_factory import (
+    create_action_for_after_delete,
+)
 from persisty_data.v6.action_factory.reaper_action import create_reaper_action
 from persisty_data.v6.chunk.chunk_file_handle import ChunkFileHandle
 from persisty_data.v6.chunk.chunk_upload import ChunkUpload

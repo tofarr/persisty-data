@@ -8,13 +8,9 @@ from servey.trigger.fixed_rate_trigger import FixedRateTrigger
 
 
 def create_reaper_action(store_meta: StoreMeta, interval: int = 3600):
-
-    @action(
-        name=store_meta.name+"_reaper",
-        triggers=FixedRateTrigger(interval)
-    )
+    @action(name=store_meta.name + "_reaper", triggers=FixedRateTrigger(interval))
     def reaper():
-        search_filter = AttrFilter('expire_at', AttrFilterOp.lt, datetime.now())
+        search_filter = AttrFilter("expire_at", AttrFilterOp.lt, datetime.now())
         store_meta.create_store().delete_all(search_filter)
 
     return get_action(reaper)

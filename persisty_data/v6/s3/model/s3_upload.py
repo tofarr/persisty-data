@@ -20,22 +20,20 @@ class S3Upload(Upload, StoreModelABC):
     provide a full set of operations. A sync operation is provided to sync details from the file system
     to storage
     """
+
     id: str = Attr(creatable=False, create_generator=S3UploadIdGenerator())
     finished: bool = False
 
-    def finish_upload(self, authorization: Optional[Authorization]) -> FileSystemFileHandle:
+    def finish_upload(
+        self, authorization: Optional[Authorization]
+    ) -> FileSystemFileHandle:
         s3_client = get_s3_client()
         s3_client.complete_multipart_upload(
-            Bucket=self.get_bucket_name(),
-            Key=self.item_key,
-            UploadId=self.id
+            Bucket=self.get_bucket_name(), Key=self.item_key, UploadId=self.id
         )
         upload_store_meta = self.get_upload_store_meta()
         upload_store = upload_store_meta.create_store()
-        updates = upload_store_meta.get_update_dataclass()(
-            id=self.id,
-            finished=True
-        )
+        updates = upload_store_meta.get_update_dataclass()(id=self.id, finished=True)
         upload_store.update(updates)
         upload_store.delete(self.id)
         file_handle_store_meta = self.get_file_handle_store_meta()
@@ -55,7 +53,7 @@ class S3Upload(Upload, StoreModelABC):
 
     @staticmethod
     def get_bucket_name():
-        return os.environ['PERSISTY_DATA_S3_BUCKET_NAME']
+        return os.environ["PERSISTY_DATA_S3_BUCKET_NAME"]
 
     """
     def get_download_url(self):

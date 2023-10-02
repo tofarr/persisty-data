@@ -17,7 +17,9 @@ from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse
 from starlette.routing import Route
 
-from persisty_data.v6.action_factory.after_delete_action import create_action_for_after_delete
+from persisty_data.v6.action_factory.after_delete_action import (
+    create_action_for_after_delete,
+)
 from persisty_data.v6.action_factory.reaper_action import create_reaper_action
 from persisty_data.v6.model.file_handle import FileHandle
 

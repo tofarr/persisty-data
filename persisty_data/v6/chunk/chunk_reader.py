@@ -52,7 +52,10 @@ class ChunkReader(RawIOBase):
         if __offset < 0 or __whence != os.SEEK_CUR:
             raise NotImplementedError()
         while __offset:
-            if self.current_chunk is UNDEFINED or (len(self.current_chunk.data) - self.offset_) < __offset:
+            if (
+                self.current_chunk is UNDEFINED
+                or (len(self.current_chunk.data) - self.offset_) < __offset
+            ):
                 __offset -= len(self.current_chunk.data) - self.offset_
                 self.current_chunk = next(self.chunks, None)
                 self.offset_ = 0

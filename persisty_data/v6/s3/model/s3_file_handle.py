@@ -9,7 +9,6 @@ from persisty_data.v6.s3.s3_client import get_s3_client
 
 
 class S3FileHandle(FileHandle):
-
     def get_reader(self) -> BinaryIO:
         s3_client = get_s3_client()
         response = s3_client.get_object(
@@ -20,9 +19,9 @@ class S3FileHandle(FileHandle):
         return streaming_body
 
     def get_bucket_name(self):
-        return os.environ['PERSISTY_DATA_S3_BUCKET_NAME']
+        return os.environ["PERSISTY_DATA_S3_BUCKET_NAME"]
 
     def get_download_url(self):
-        download_url_pattern = os.environ['PERSISTY_DATA_S3_DOWNLOAD_URL_PATTERN']
+        download_url_pattern = os.environ["PERSISTY_DATA_S3_DOWNLOAD_URL_PATTERN"]
         download_url = download_url_pattern.format(key=self.item_key)
         return download_url

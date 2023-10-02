@@ -8,8 +8,8 @@ def create_action_for_after_delete(store_meta: StoreMeta):
         return
 
     @action(
-        name=store_meta.name+"_after_delete",
-        triggers=AfterDeleteTrigger(store_meta.name)
+        name=store_meta.name + "_after_delete",
+        triggers=AfterDeleteTrigger(store_meta.name),
     )
     def after_delete(item: store_meta.get_stored_dataclass()) -> bool:
         item.after_delete()

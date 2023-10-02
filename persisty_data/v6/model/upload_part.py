@@ -56,7 +56,10 @@ def create_stored_upload_part_type(
             require_ownership_for_read=True,
         )
     if not action_factory:
-        from persisty_data.v6.action_factory.upload_part_action_factory import UploadPartActionFactory
+        from persisty_data.v6.action_factory.upload_part_action_factory import (
+            UploadPartActionFactory,
+        )
+
         action_factory = UploadPartActionFactory()
     stored_type = stored(
         upload_type, store_security=store_security, action_factory=action_factory

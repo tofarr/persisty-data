@@ -6,10 +6,11 @@ from persisty.store_meta import StoreMeta
 
 
 class DataStoreABC(ABC):
-
     @abstractmethod
-    def create_store_meta(self, name: str, store_security: Optional[StoreSecurityABC] = None) -> List[StoreMeta]:
-        """ Create a set of stores for this data store """
+    def create_store_meta(
+        self, name: str, store_security: Optional[StoreSecurityABC] = None
+    ) -> List[StoreMeta]:
+        """Create a set of stores for this data store"""
 
 
 def add_stores_for_data(data_store: DataStoreABC, target: Dict):

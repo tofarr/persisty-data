@@ -1,14 +1,16 @@
 from dataclasses import dataclass
+import mimetypes
 
 from persisty.attr.generator.attr_value_generator_abc import AttrValueGeneratorABC
 from persisty.util import UNDEFINED
 
 
 @dataclass
-class S3CopyItemKeyFromUploadGenerator(AttrValueGeneratorABC):
+class ContentTypeGenerator(AttrValueGeneratorABC):
+    key: str = "key"
+
     def transform(self, value, item):
         if value is UNDEFINED:
-            store = item.get_upload_store_meta().create_store()
-            upload = store.read(item.upload_id)
-            value = upload.item_key
+            key = getattr(item, self.key)
+            value = mimetypes.guess_type(key)[0]
         return value

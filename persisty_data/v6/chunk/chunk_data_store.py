@@ -14,11 +14,12 @@ from persisty_data.v6.model.upload_part import create_stored_upload_part_type
 
 
 class ChunkDataStore(DataStoreABC):
-
-    def create_store_meta(self, name: str, store_security: Optional[StoreSecurityABC] = None) -> List[StoreMeta]:
+    def create_store_meta(
+        self, name: str, store_security: Optional[StoreSecurityABC] = None
+    ) -> List[StoreMeta]:
         return [
             create_stored_file_handle_type(name, ChunkFileHandle, store_security),
             create_stored_upload_type(name, ChunkUpload),
             create_stored_upload_part_type(name, ChunkUploadPart),
-            create_stored_chunk_type(name)
+            create_stored_chunk_type(name),
         ]

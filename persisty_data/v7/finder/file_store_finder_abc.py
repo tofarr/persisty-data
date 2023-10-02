@@ -3,19 +3,18 @@ from typing import Iterator
 
 from marshy.factory.impl_marshaller_factory import get_impls
 
-from persisty_data.v7.data_store_abc import DataStoreABC
+from persisty_data.v7.file_store_abc import FileStoreABC
 
 
-class DataStoreFinderABC(ABC):
-
+class FileStoreFinderABC(ABC):
     @abstractmethod
-    def find_data_stores(self) -> DataStoreABC:
+    def find_file_stores(self) -> FileStoreABC:
         """Find all available store items"""
 
 
-def find_data_stores() -> Iterator[DataStoreABC]:
+def find_file_stores() -> Iterator[FileStoreABC]:
     names = set()
-    for finder in get_impls(DataStoreFinderABC):
+    for finder in get_impls(FileStoreFinderABC):
         for store_meta in finder().find_stored():
             name = store_meta.name
             if name not in names:
@@ -23,6 +22,6 @@ def find_data_stores() -> Iterator[DataStoreABC]:
                 yield store_meta
 
 
-def find_data_store_by_name(store_name: str) -> DataStoreABC:
-    result = next(s for s in find_data_stores() if s.name == store_name)
+def find_file_store_by_name(store_name: str) -> FileStoreABC:
+    result = next(s for s in find_file_stores() if s.name == store_name)
     return result

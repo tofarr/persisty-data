@@ -11,7 +11,6 @@ DATA_DIRECTORY = "persisty_data"
 
 
 class FileSystemFileHandle(FileHandle, StoreModelABC):
-
     def get_reader(self) -> BinaryIO:
         store_meta = self.get_file_handle_store_meta()
         path = key_to_path(Path(self.get_data_directory(), store_meta.name), self.key)

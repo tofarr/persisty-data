@@ -31,9 +31,7 @@ class UploadPartActionFactory(ActionFactoryABC):
         store_access = store.get_meta().store_security.get_api_access()
         if store_access.create_filter is not EXCLUDE_ALL:
             authorizer = get_default_authorizer()
-            yield create_route_for_part_upload(
-                upload_part_store_meta, authorizer
-            )
+            yield create_route_for_part_upload(upload_part_store_meta, authorizer)
 
 
 def create_route_for_part_upload(

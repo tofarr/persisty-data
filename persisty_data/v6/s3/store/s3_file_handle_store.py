@@ -27,10 +27,7 @@ class S3FileHandleStore(StoreABC[S3FileHandle]):
         # noinspection PyUnresolvedReferences
         bucket_name = stored_class.get_bucket_name()
         try:
-            response = get_s3_client().get_object(
-                BucketName=bucket_name,
-                Key=key
-            )
+            response = get_s3_client().get_object(BucketName=bucket_name, Key=key)
         except:
             return
         item = self._file_handle(response, key, stored_class)
@@ -40,17 +37,19 @@ class S3FileHandleStore(StoreABC[S3FileHandle]):
     def _file_handle(response: Dict, key: str, stored_class: Callable):
         item = stored_class(
             key=key,
-            content_type=response.get('ContentType'),
-            size_in_bytes=response['ContentLength'],
-            etag=response['ETag'],
+            content_type=response.get("ContentType"),
+            size_in_bytes=response["ContentLength"],
+            etag=response["ETag"],
             # download_url=
-            subject_id=(response.get('Metadata') or {}).get('subject_id'),
-            expire_at=response['Expires'],
+            subject_id=(response.get("Metadata") or {}).get("subject_id"),
+            expire_at=response["Expires"],
         )
         item.download_url = item.get_download_url()
         return item
 
-    def _update(self, key: str, item: S3FileHandle, updates: S3FileHandle) -> Optional[S3FileHandle]:
+    def _update(
+        self, key: str, item: S3FileHandle, updates: S3FileHandle
+    ) -> Optional[S3FileHandle]:
         raise NotImplementedError
 
     def _delete(self, key: str, item: S3FileHandle) -> bool:

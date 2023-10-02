@@ -19,7 +19,6 @@ class ChunkUpload(Upload, ChunkStoreModelABC):
     """
 
     def finish_upload(self, authorization: Optional[Authorization]) -> ChunkFileHandle:
-
         chunk_store_meta = self.get_chunk_store_meta()
         chunk_store = chunk_store_meta.create_store()
         search_filter = AttrFilter("upload_id", AttrFilterOp.eq, self.id)
