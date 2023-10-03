@@ -6,7 +6,6 @@ from io import IOBase
 from typing import Optional, List, Iterator
 from uuid import UUID
 
-from persisty.result_set import ResultSet
 from persisty.search_filter.exclude_all import EXCLUDE_ALL
 from persisty.store_meta import StoreMeta
 from servey.action.action import Action, action, get_action
@@ -16,9 +15,11 @@ from servey.trigger.web_trigger import WebTrigger, WebTriggerMethod
 from persisty_data.v7.file_handle import (
     FileHandle,
     FileHandleSearchFilter,
-    FileHandleSearchOrder, FileHandleResultSet,
+    FileHandleSearchOrder,
+    FileHandleResultSet,
 )
 from persisty_data.v7.upload_handle import UploadHandle, UploadHandleResultSet
+from persisty_data.v7.upload_part import UploadPartResultSet, UploadPart
 
 _Route = "starlette.routing.Route"
 
@@ -71,12 +72,14 @@ class FileStoreABC(ABC):
     def _file_store_action(self, fn_name: str):
         sig = inspect.signature(getattr(self, fn_name))
         params = list(sig.parameters)
-        params.append(inspect.Parameter(
-            name='authorization',
-            kind=inspect.Parameter.KEYWORD_ONLY,
-            default=None,
-            annotation=Optional[Authorization]
-        ))
+        params.append(
+            inspect.Parameter(
+                name="authorization",
+                kind=inspect.Parameter.KEYWORD_ONLY,
+                default=None,
+                annotation=Optional[Authorization],
+            )
+        )
         sig = sig.replace(parameters=params)
 
         def action_fn(**kwargs):
@@ -89,20 +92,17 @@ class FileStoreABC(ABC):
         action_fn.__signature__ = sig
         method = WebTriggerMethod.GET
         action_path = (
-            fn_name
-            .replace('-read', '')
-            .replace('-create', '')
-            .replace('-delete', '')
-            .replace('_', '-')
+            fn_name.replace("-read", "")
+            .replace("-create", "")
+            .replace("-delete", "")
+            .replace("_", "-")
         )
         path = f"/actions/{self.get_meta().name}/{action_path}"
-        if fn_name.endswith('_delete'):
+        if fn_name.endswith("_delete"):
             method = WebTriggerMethod.DELETE
-        elif fn_name.endswith('create'):
+        elif fn_name.endswith("create"):
             method = WebTriggerMethod.POST
-        action_fn = action(action_fn, triggers=WebTrigger(
-            method
-        ))
+        action_fn = action(action_fn, triggers=WebTrigger(method))
         return get_action(action_fn)
 
     @abstractmethod
@@ -110,19 +110,26 @@ class FileStoreABC(ABC):
         """Get any starlette routes associated with this data store"""
 
     @abstractmethod
-    def content_create(
-        self,
-        source: IOBase,
-        file_name: Optional[str],
-        content_type: Optional[str],
-    ):
-        """Create a data handle with data from the source URL"""
+    def content_read(
+        self, file_name: str, content_type: Optional[str] = None
+    ) -> Optional[IOBase]:
+        """Create a reader from the named file within the store"""
 
     @abstractmethod
-    def content_read(
-        self, source: IOBase, file_name: Optional[str], content_type: Optional[str]
-    ):
-        """Create a data handle with data from the source URL"""
+    def content_write(
+        self,
+        file_name: Optional[str],
+        content_type: Optional[str],
+    ) -> IOBase:
+        """Create a writer to the named file within the store"""
+
+    @abstractmethod
+    def upload_write(
+        self,
+        upload_id: UUID,
+        part_number: int = 1
+    ) -> Optional[IOBase]:
+        """Create a writer to the upload within the store"""
 
     @abstractmethod
     def file_read(self, file_name: str) -> FileHandle:
@@ -140,7 +147,7 @@ class FileStoreABC(ABC):
         search_filter: Optional[FileHandleSearchFilter] = None,
         search_order: Optional[FileHandleSearchOrder] = None,
         page_key: Optional[str] = None,
-        limit: Optional[int] = None
+        limit: Optional[int] = None,
     ) -> FileHandleResultSet:
         """Search data handles. Does not support the standard search order as this is not supported by"""
 
@@ -186,13 +193,16 @@ class FileStoreABC(ABC):
         """Delete an upload. Return true if item existed and was deleted"""
 
     @abstractmethod
-    def upload_part_create(self, upload_id: UUID) -> Optional[str]:
+    def upload_part_create(self, upload_id: UUID) -> Optional[UploadPart]:
         """Create a new upload part in the upload given"""
 
     @abstractmethod
     def upload_part_search(
-        self, upload_id__eq: UUID, page_key: Optional[str] = None
-    ) -> ResultSet[str]:
+        self,
+        upload_id__eq: UUID,
+        page_key: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> UploadPartResultSet:
         """Search upload parts"""
 
     @abstractmethod

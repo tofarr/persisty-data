@@ -7,8 +7,7 @@ from persisty.result_set import result_set_dataclass_for
 from servey.action.action import action
 
 from persisty_data.v7.finder.file_store_finder_abc import find_file_store_by_name
-
-UploadPartResultSet = result_set_dataclass_for(str)
+from persisty_data.v7.upload_part import UploadPartResultSet
 
 
 @dataclass

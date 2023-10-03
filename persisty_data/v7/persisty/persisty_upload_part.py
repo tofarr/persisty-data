@@ -18,7 +18,6 @@ from persisty_data.v7.generator.part_number_generator import PartNumberGenerator
     )
 )
 class PersistyUploadPart:
-    id: UUID
     upload_id: UUID
     part_number: int = Attr(create_generator=PartNumberGenerator("upload_id"))
     created_at: datetime

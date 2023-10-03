@@ -20,6 +20,7 @@ class PersistyUploadHandle:
     """
     Metadata about an upload
     """
+
     id: UUID
     store_name: str
     file_name: str
