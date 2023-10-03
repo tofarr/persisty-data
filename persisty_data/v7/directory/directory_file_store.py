@@ -1,76 +1,66 @@
 import hashlib
-from dataclasses import field
+import os
+import shutil
 from io import IOBase
-from typing import Optional, Iterator
-from uuid import UUID, uuid4
+from pathlib import Path
+from typing import Optional
+from uuid import UUID
 
 from persisty.attr.attr_filter import AttrFilter
 from persisty.attr.attr_filter_op import AttrFilterOp
 from persisty.search_order.search_order import SearchOrder
 from persisty.search_order.search_order_attr import SearchOrderAttr
-from persisty.store.store_abc import StoreABC
-from persisty.store_meta import get_meta, StoreMeta
 
+from persisty_data.v7.directory.directory_file_handle_writer import DirectoryFileHandleWriter
 from persisty_data.v7.file_handle import FileHandle
-from persisty_data.v7.persisty.data_chunk import DataChunk
-from persisty_data.v7.persisty.data_chunk_reader import DataChunkReader
-from persisty_data.v7.persisty.data_chunk_writer import DataChunkWriter
 from persisty_data.v7.persisty.persisty_file_handle import PersistyFileHandle
-from persisty_data.v7.persisty.persisty_file_handle_writer import PersistyFileHandleWriter
 from persisty_data.v7.persisty.persisty_file_store_abc import PersistyFileStoreABC
-from persisty_data.v7.persisty.persisty_upload_part import PersistyUploadPart
+
+COPY_BUFFER_SIZE = 1024 * 1024
 
 
-class PersistyFileStore(PersistyFileStoreABC):
-    data_chunk_store: StoreABC[DataChunk] = field(
-        default_factory=get_meta(DataChunk).create_store
-    )
-
-    def get_persisty_store_meta(self) -> Iterator[StoreMeta]:
-        yield from super().get_persisty_store_meta()
-        yield self.data_chunk_store.get_meta()
+class DirectoryFileStore(PersistyFileStoreABC):
+    store_dir: Path
+    upload_dir: Path
 
     def content_write(
         self,
         file_name: Optional[str],
         content_type: Optional[str] = None,
     ) -> IOBase:
-        writer = PersistyFileHandleWriter(
-            store_name=self.meta.name,
-            file_name=file_name,
-            upload_part=PersistyUploadPart(
-                id=uuid4(),
-                upload_id=uuid4(),
-                part_number=0
-            ),
-            content_type=content_type,
-        )
-        return writer
+        try:
+            writer = open(_key_to_path(self.store_dir, file_name), "wb")
+            writer = DirectoryFileHandleWriter(
+                writer=writer,
+                file_name=file_name,
+                content_type=content_type
+            )
+            return writer
+        except FileNotFoundError:
+            pass
 
     def upload_write(
         self,
         part_id: UUID,
     ) -> Optional[IOBase]:
-        """ Create a writer to the upload within the store """
         upload_part = self.upload_part_store.read(str(part_id))
         if not upload_part:
             return
-        self.data_chunk_store.delete_all((
-            AttrFilter("upload_id", AttrFilterOp.eq, upload_part.upload_id)
-            & AttrFilter("part_number", AttrFilterOp.eq, upload_part.part_number)
-        ))
-        writer = DataChunkWriter(upload_part=upload_part)
-        return writer
+        try:
+            file_name = _key_to_path(self.upload_dir, str(upload_part.upload_id))
+            file_name.mkdir(parents=True, exist_ok=True)
+            file_name = f"{upload_part.upload_id}/{part_id}"
+            writer = open(_key_to_path(self.upload_dir, file_name), "wb")
+            # noinspection PyTypeChecker
+            return writer
+        except FileNotFoundError:
+            pass
 
     def content_read(self, file_name: str) -> Optional[IOBase]:
         file_handle = self.file_handle_store.read(self._to_key(file_name))
         if file_handle:
-            chunks = self.data_chunk_store.search_all(
-                AttrFilter('upload_id', AttrFilterOp.eq, file_handle.upload_id),
-                SearchOrder((SearchOrderAttr("sort_key"),))
-            )
-            result = DataChunkReader(chunks)
-            return result
+            # noinspection PyTypeChecker
+            return open(_key_to_path(self.store_dir, file_name), "rb")
 
     def file_delete(self, file_name: str) -> bool:
         key = self._to_key(file_name)
@@ -80,9 +70,7 @@ class PersistyFileStore(PersistyFileStoreABC):
         # noinspection PyProtectedMember
         result = self.file_handle_store._delete(key, file_handle)
         if result:
-            self.data_chunk_store.delete_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, file_handle.upload_id)
-            )
+            os.remove(_key_to_path(self.store_dir, file_name))
         return result
 
     def upload_finish(self, upload_id: UUID) -> Optional[FileHandle]:
@@ -93,13 +81,21 @@ class PersistyFileStore(PersistyFileStoreABC):
         file_handle = self.file_handle_store.read(str(upload_id))
         md5 = hashlib.md5()
         size_in_bytes = 0
-        data_chunks = self.data_chunk_store.search_all(
-            AttrFilter("upload_id", AttrFilterOp.eq, str(upload_id)),
-            SearchOrder((SearchOrderAttr("sort_key)"),)),
-        )
-        for data_chunk in data_chunks:
-            md5.update(data_chunk.data)
-            size_in_bytes += len(data_chunk.data)
+
+        upload_parts = list(self.upload_part_store.search_all(
+            AttrFilter("upload_id", AttrFilterOp.eq, upload_id),
+            SearchOrder((SearchOrderAttr("part_number"),))
+        ))
+        with open(_key_to_path(self.store_dir, upload_handle.file_name), 'wb') as writer:
+            for upload_part in upload_parts:
+                file_name = _key_to_path(self.upload_dir, f"{upload_id}/{upload_part.id}")
+                with open(file_name, 'rb') as reader:
+                    buffer = reader.read(COPY_BUFFER_SIZE)
+                    writer.write(buffer)
+                    md5.update(buffer)
+                    size_in_bytes += len(buffer)
+                os.remove(file_name)
+
         new_file_handle = PersistyFileHandle(
             id=file_handle_id,
             file_name=upload_handle.file_name,
@@ -110,19 +106,12 @@ class PersistyFileStore(PersistyFileStoreABC):
         )
         self.upload_handle_store.delete(str(upload_id))
         if file_handle:
-            old_upload_id = file_handle.upload_id
             # noinspection PyProtectedMember
             file_handle = self.file_handle_store._update(
                 file_handle_id, file_handle, new_file_handle
             )
-            self.data_chunk_store.delete_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, old_upload_id)
-            )
         else:
             file_handle = self.file_handle_store.create(new_file_handle)
-        self.upload_part_store.delete_all(
-            AttrFilter("upload_id", AttrFilterOp.eq, upload_id)
-        )
         return self._to_file_handle(file_handle)
 
     def upload_delete(self, upload_id: UUID) -> bool:
@@ -132,7 +121,12 @@ class PersistyFileStore(PersistyFileStoreABC):
             self.upload_part_store.delete_all(
                 AttrFilter("upload_id", AttrFilterOp.eq, upload_id)
             )
-            self.data_chunk_store.delete_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, upload_id)
-            )
+            upload_dir = _key_to_path(self.upload_dir, str(upload_id))
+            shutil.rmtree(upload_dir)
         return result
+
+
+def _key_to_path(directory: Path, key: str):
+    path = Path(directory, key)
+    assert os.path.normpath(path) == str(path)  # Prevent ../ shenanigans
+    return path

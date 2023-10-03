@@ -17,7 +17,7 @@ from persisty_data.v7.generator.part_number_generator import PartNumberGenerator
         PartitionSortIndex("upload_id", "part_number"),
     )
 )
-class PersistyUploadPart:
+class DirectoryUploadPart:
     id: UUID
     upload_id: UUID
     part_number: int = Attr(create_generator=PartNumberGenerator("upload_id"))

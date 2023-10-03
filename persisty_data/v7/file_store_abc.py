@@ -18,6 +18,7 @@ from persisty_data.v7.file_handle import (
     FileHandleSearchOrder,
     FileHandleResultSet,
 )
+from persisty_data.v7.file_store_meta import FileStoreMeta
 from persisty_data.v7.upload_handle import UploadHandle, UploadHandleResultSet
 from persisty_data.v7.upload_part import UploadPartResultSet, UploadPart
 
@@ -31,7 +32,7 @@ class FileStoreABC(ABC):
     """
 
     @abstractmethod
-    def get_meta(self):
+    def get_meta(self) -> FileStoreMeta:
         """Get the meta for this store"""
 
     @abstractmethod
@@ -40,7 +41,7 @@ class FileStoreABC(ABC):
 
     def get_actions(self) -> Iterator[Action]:
         """Get any servey actions associated with this data store"""
-        store_access = self.get_meta().get_api_access()
+        store_access = self.get_meta().store_security.get_api_access()
         fn_names = []
         if store_access.read_filter is not EXCLUDE_ALL:
             fn_names.extend(("file_read", "file_read_batch"))
@@ -84,7 +85,7 @@ class FileStoreABC(ABC):
 
         def action_fn(**kwargs):
             authorization = kwargs.pop("authorization", None)
-            secured_store = self.get_meta().store_security.get_secured(authorization)
+            secured_store = self.get_meta().store_security.get_secured(self, authorization)
             fn = getattr(secured_store, fn_name)
             result = fn.invoke(**kwargs)
             return result
@@ -110,9 +111,7 @@ class FileStoreABC(ABC):
         """Get any starlette routes associated with this data store"""
 
     @abstractmethod
-    def content_read(
-        self, file_name: str, content_type: Optional[str] = None
-    ) -> Optional[IOBase]:
+    def content_read(self, file_name: str) -> Optional[IOBase]:
         """Create a reader from the named file within the store"""
 
     @abstractmethod
@@ -126,13 +125,12 @@ class FileStoreABC(ABC):
     @abstractmethod
     def upload_write(
         self,
-        upload_id: UUID,
-        part_number: int = 1
+        part_id: UUID,
     ) -> Optional[IOBase]:
         """Create a writer to the upload within the store"""
 
     @abstractmethod
-    def file_read(self, file_name: str) -> FileHandle:
+    def file_read(self, file_name: str) -> Optional[FileHandle]:
         """Read a data handle"""
 
     @abstractmethod
@@ -165,7 +163,7 @@ class FileStoreABC(ABC):
         file_name: str,
         content_type: Optional[str],
         size_in_bytes: Optional[int],
-    ) -> UploadHandle:
+    ) -> Optional[UploadHandle]:
         """Create a new upload handle"""
 
     @abstractmethod

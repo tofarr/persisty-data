@@ -16,14 +16,16 @@ from persisty_data.v7.generator.content_type_generator import ContentTypeGenerat
         PartitionSortIndex("store_name", "file_name"),
     )
 )
-class PersistyFileHandle:
-    """Metadata about a file"""
-    id: str  # Combo of store_name and file_name
+class DirectoryUploadHandle:
+    """
+    Metadata about an upload
+    """
+    id: UUID
     store_name: str
     file_name: str
-    upload_id: UUID
-    content_type: Optional[str] = Attr(create_generator=ContentTypeGenerator())
-    etag: str
-    size_in_bytes: int
+    content_type: Optional[str] = Attr(
+        create_generator=ContentTypeGenerator("file_name")
+    )
+    expire_at: datetime
     created_at: datetime
     updated_at: datetime

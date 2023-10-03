@@ -5,7 +5,7 @@ from servey.security.authorization import Authorization
 
 from persisty.security.store_access import StoreAccess
 
-_FileStoreABC = "persisty-data.v7.file_store_abc"
+_FileStoreABC = "persisty-data.v7.file_store_abc.FileStoreABC"
 T = TypeVar("T")
 
 
@@ -14,7 +14,7 @@ class FileStoreSecurityABC(ABC, Generic[T]):
 
     @abstractmethod
     def get_secured(
-        self, store: _FileStoreABC, authorization: Optional[Authorization]
+        self, file_store: _FileStoreABC, authorization: Optional[Authorization]
     ) -> _FileStoreABC:
         """
         Get the access for a store given the authorization
