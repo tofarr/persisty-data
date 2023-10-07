@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Type
 
 from persisty.search_filter.exclude_all import EXCLUDE_ALL
 from persisty.search_filter.include_all import INCLUDE_ALL
@@ -7,13 +7,11 @@ from servey.action.action import action
 from servey.security.authorization import Authorization
 from servey.trigger.web_trigger import WEB_GET, WEB_POST
 
+from persisty_data.file_handle import FileHandle
 from persisty_data.file_store_abc import FileStoreABC
 from persisty_data.stored_file_handle import (
-    FileHandleResult,
-    StoredFileHandle,
     FileHandleSearchFilter,
-    FileHandleSearchOrder,
-    FileHandleResultSet,
+    FileHandleSearchOrder, StoredFileHandle,
 )
 from persisty_data.upload_handle import UploadHandle
 from persisty_data.upload_part import UploadPart
@@ -21,18 +19,22 @@ from persisty_data.upload_part import UploadPart
 _ATTRS = get_meta(StoredFileHandle).attrs
 
 
-def create_action_for_file_read(store: FileStoreABC):
+def create_action_for_file_read(
+    store: FileStoreABC,
+    file_handle_type: Type[FileHandle],
+    file_handle_result_type: Type,
+):
     if store.get_api().get_meta().store_access.read_filter is EXCLUDE_ALL:
         return
 
     @action(name=f"{store.get_meta().name}_file_read", triggers=WEB_GET)
     def file_read(
         file_name: str, authorization: Optional[Authorization]
-    ) -> Optional[FileHandleResult]:
+    ) -> Optional[file_handle_result_type]:
         secured_store = store.get_secured(authorization)
         item = secured_store.file_read(file_name)
         store_access = secured_store.get_meta().store_access
-        return FileHandleResult(
+        return file_handle_result_type(
             item=item,
             updatable=store_access.update_filter.match(item, _ATTRS),
             deletable=store_access.create_filter.match(item, _ATTRS),
@@ -41,21 +43,25 @@ def create_action_for_file_read(store: FileStoreABC):
     return file_read
 
 
-def create_action_for_file_read_batch(store: FileStoreABC):
+def create_action_for_file_read_batch(
+    store: FileStoreABC,
+    file_handle_type: Type[FileHandle],
+    file_handle_result_type: Type,
+):
     if store.get_api().get_meta().store_access.read_filter is EXCLUDE_ALL:
         return
 
     @action(name=f"{store.get_meta().name}_file_read_batch", triggers=WEB_GET)
     def file_read_batch(
         file_names: List[str], authorization: Optional[Authorization]
-    ) -> List[Optional[FileHandleResult]]:
+    ) -> List[Optional[file_handle_result_type]]:
         secured_store = store.get_secured(authorization)
         items = secured_store.file_read_batch(file_names)
         store_access = secured_store.get_meta().store_access
         create_filter = store_access.create_filter
         update_filter = store_access.update_filter
         results = [
-            FileHandleResult(
+            file_handle_result_type(
                 item=item,
                 updatable=update_filter.match(item, _ATTRS),
                 deletable=create_filter.match(item, _ATTRS),
@@ -84,7 +90,12 @@ def create_action_for_file_count(store: FileStoreABC):
     return file_count
 
 
-def create_action_for_file_search(store: FileStoreABC):
+def create_action_for_file_search(
+    store: FileStoreABC,
+    file_handle_type: Type[FileHandle],
+    file_handle_result_type: Type,
+    file_handle_result_set_type: Type,
+):
     api_access = store.get_api().get_meta().store_access
     if api_access.read_filter is EXCLUDE_ALL or not api_access.searchable:
         return
@@ -96,7 +107,7 @@ def create_action_for_file_search(store: FileStoreABC):
         page_key: Optional[str] = None,
         limit: Optional[int] = None,
         authorization: Optional[Authorization] = None,
-    ) -> FileHandleResultSet:
+    ) -> file_handle_result_set_type:
         secured_store = store.get_secured(authorization)
         search_filter = (
             search_filter.to_search_filter() if search_filter else INCLUDE_ALL
@@ -105,9 +116,9 @@ def create_action_for_file_search(store: FileStoreABC):
         store_access = secured_store.get_meta().store_access
         create_filter = store_access.create_filter
         update_filter = store_access.update_filter
-        result = FileHandleResultSet(
+        result = file_handle_result_set_type(
             results=[
-                FileHandleResult(
+                file_handle_result_type(
                     item=item,
                     updatable=update_filter.match(item, _ATTRS),
                     deletable=create_filter.match(item, _ATTRS),
@@ -174,19 +185,23 @@ def create_action_for_upload_read(store: FileStoreABC):
     return upload_read
 
 
-def create_action_for_upload_finish(store: FileStoreABC):
+def create_action_for_upload_finish(
+    store: FileStoreABC,
+    file_handle_type: Type[FileHandle],
+    file_handle_result_type: Type,
+):
     if _is_not_editable(store):
         return
 
     @action(name=f"{store.get_meta().name}_upload_finish", triggers=WEB_POST)
     def upload_finish(
         upload_id: str, authorization: Optional[Authorization] = None
-    ) -> Optional[FileHandleResult]:
+    ) -> Optional[file_handle_result_type]:
         secured_store = store.get_secured(authorization)
         item = secured_store.upload_finish(upload_id)
         if item:
             store_access = secured_store.get_meta().store_access
-            return FileHandleResult(
+            return file_handle_result_type(
                 item=item,
                 updatable=store_access.update_filter.match(item, _ATTRS),
                 deletable=store_access.create_filter.match(item, _ATTRS),

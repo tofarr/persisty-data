@@ -3,6 +3,7 @@ from io import IOBase
 from typing import Iterator, Optional, List
 
 from persisty.errors import PersistyError
+from persisty.result_set import ResultSet
 from persisty.search_filter.exclude_all import EXCLUDE_ALL
 from persisty.search_filter.include_all import INCLUDE_ALL
 from persisty.search_filter.search_filter_abc import SearchFilterABC
@@ -15,7 +16,6 @@ from persisty_data.file_store_abc import FileStoreABC, _Route
 from persisty_data.file_store_meta import FileStoreMeta
 from persisty_data.stored_file_handle import (
     FileHandleSearchOrder,
-    FileHandleResultSet,
     StoredFileHandle,
 )
 from persisty_data.upload_handle import UploadHandleResultSet, UploadHandle
@@ -102,11 +102,11 @@ class RestrictAccessFileStore(FileStoreABC):
         search_order: Optional[FileHandleSearchOrder] = None,
         page_key: Optional[str] = None,
         limit: Optional[int] = None,
-    ) -> FileHandleResultSet:
+    ) -> ResultSet[FileHandle]:
         store_access = self.store_access
         search_filter &= store_access.read_filter
         if not store_access.searchable or search_filter is EXCLUDE_ALL:
-            return FileHandleResultSet([])
+            return ResultSet([])
         return self.file_store.file_search(search_filter, search_order, page_key, limit)
 
     def file_count(self, search_filter: SearchFilterABC = INCLUDE_ALL) -> int:

@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from io import IOBase
 from typing import Optional, List, Iterator
 
+from persisty.result import result_dataclass_for
+from persisty.result_set import result_set_dataclass_for, ResultSet
 from persisty.search_filter.include_all import INCLUDE_ALL
 from persisty.search_filter.search_filter_abc import SearchFilterABC
 from persisty.store_meta import StoreMeta
@@ -14,7 +16,7 @@ from persisty_data.file_handle import FileHandle
 from persisty_data.file_store_meta import FileStoreMeta
 from persisty_data.stored_file_handle import (
     FileHandleSearchOrder,
-    FileHandleResultSet,
+    stored_file_handle,
 )
 from persisty_data.upload_handle import UploadHandle, UploadHandleResultSet
 from persisty_data.upload_part import UploadPartResultSet, UploadPart
@@ -41,15 +43,32 @@ class FileStoreABC(ABC):
         """Get any servey actions associated with this data store"""
         from persisty_data import file_store_actions
 
+        file_handle_type = stored_file_handle(self.get_meta())
+        file_handle_result_type = result_dataclass_for(file_handle_type)
+        file_handle_result_set_type = result_set_dataclass_for(
+            file_handle_result_type, f"{file_handle_type.__name__}ResultSet"
+        )
+
         actions = (
-            file_store_actions.create_action_for_file_read(self),
+            file_store_actions.create_action_for_file_read(
+                self, file_handle_type, file_handle_result_type
+            ),
             file_store_actions.create_action_for_file_count(self),
             file_store_actions.create_action_for_file_delete(self),
-            file_store_actions.create_action_for_file_search(self),
-            file_store_actions.create_action_for_file_read_batch(self),
+            file_store_actions.create_action_for_file_search(
+                self,
+                file_handle_type,
+                file_handle_result_type,
+                file_handle_result_set_type,
+            ),
+            file_store_actions.create_action_for_file_read_batch(
+                self, file_handle_type, file_handle_result_type
+            ),
             file_store_actions.create_action_for_upload_create(self),
             file_store_actions.create_action_for_upload_delete(self),
-            file_store_actions.create_action_for_upload_finish(self),
+            file_store_actions.create_action_for_upload_finish(
+                self, file_handle_type, file_handle_result_type
+            ),
             file_store_actions.create_action_for_upload_part_count(self),
             file_store_actions.create_action_for_upload_part_create(self),
             file_store_actions.create_action_for_upload_part_search(self),
@@ -98,7 +117,7 @@ class FileStoreABC(ABC):
         search_order: Optional[FileHandleSearchOrder] = None,
         page_key: Optional[str] = None,
         limit: Optional[int] = None,
-    ) -> FileHandleResultSet:
+    ) -> ResultSet[FileHandle]:
         """Search data handles. Does not support the standard search order as this is not supported by"""
 
     @abstractmethod

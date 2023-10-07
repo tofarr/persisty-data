@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from persisty.attr.attr_filter import AttrFilter
 from persisty.attr.attr_filter_op import AttrFilterOp
 from persisty.batch_edit import BatchEdit
+from persisty.result_set import ResultSet
 from persisty.search_filter.exclude_all import EXCLUDE_ALL
 from persisty.search_filter.include_all import INCLUDE_ALL
 from persisty.search_filter.search_filter_abc import SearchFilterABC
@@ -27,9 +28,7 @@ from persisty_data.persisty.persisty_upload_handle import PersistyUploadHandle
 from persisty_data.persisty.persisty_upload_part import PersistyUploadPart
 from persisty_data.routes import create_route_for_part_upload, create_route_for_download
 from persisty_data.stored_file_handle import (
-    FileHandleSearchFilter,
     FileHandleSearchOrder,
-    FileHandleResultSet,
     StoredFileHandle,
 )
 from persisty_data.upload_handle import UploadHandle, UploadHandleResultSet
@@ -110,12 +109,12 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         search_order: Optional[FileHandleSearchOrder] = None,
         page_key: Optional[str] = None,
         limit: Optional[int] = None,
-    ) -> FileHandleResultSet:
+    ) -> ResultSet[FileHandle]:
         search_order = search_order.to_search_order() if search_order else None
         result_set = self.file_handle_store.search(
             search_filter, search_order, page_key, limit
         )
-        result = FileHandleResultSet(
+        result = ResultSet(
             results=[self._to_file_handle(r) for r in result_set.results],
             next_page_key=result_set.next_page_key,
         )
