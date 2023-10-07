@@ -11,6 +11,6 @@ class HasImg(HasUrl):
 
     def update_json_schema(self, json_schema: ExternalItemType):
         key_attr_schema = json_schema.get("properties").get(self.key_attr_name)
-        factory = self.get_linked_data_store_factory()
-        schema = factory.get_json_schema()
+        file_store = self.get_linked_file_store()
+        schema = file_store.get_json_schema()
         key_attr_schema["persistyImgStore"] = schema

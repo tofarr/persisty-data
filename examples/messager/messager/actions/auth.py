@@ -4,6 +4,8 @@ from datetime import datetime
 from typing import Optional
 
 import bcrypt
+import boto3
+from persisty.store.store_abc import get_store
 from servey.action.action import action
 from servey.cache_control.ttl_cache_control import TtlCacheControl
 from servey.security.authenticator.password_authenticator_abc import (
@@ -15,9 +17,7 @@ from servey.servey_aws import is_lambda_env
 from servey.trigger.web_trigger import WEB_POST, WEB_GET
 
 from persisty.search_filter.filter_factory import filter_factory
-from messager.models.user import User
-
-from messager.store import user_store
+from messager.store.user import User
 
 
 @action(triggers=WEB_POST)
@@ -27,6 +27,7 @@ def sign_up(
     full_name: Optional[str] = None,
     email_address: Optional[str] = None,
 ) -> str:
+    user_store = get_store(User)
     password_digest = bcrypt.hashpw(password.encode("UTF-8"), bcrypt.gensalt())
     password_digest_base64 = base64.b64encode(password_digest)
     password_digest_base64_str = password_digest_base64.decode("UTF-8")
@@ -63,9 +64,6 @@ def get_appsync_api_key() -> Optional[str]:
     """Appsync requires the use of an API key, so we add the ability to get it"""
     if not is_lambda_env():
         return
-    # noinspection PyUnresolvedReferences
-    import boto3
-
     appsync_client = boto3.client("appsync")
     api_id = _get_api_id(appsync_client)
     if not api_id:

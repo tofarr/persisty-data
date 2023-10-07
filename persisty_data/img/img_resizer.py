@@ -1,4 +1,3 @@
-import io
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Dict
@@ -7,17 +6,8 @@ from PIL import Image
 from persisty.errors import PersistyError
 from servey.security.authorization import Authorization
 
-from persisty_data.data_store_abc import find_data_stores, DataStoreABC
-from persisty_data.data_store_factory_abc import (
-    DataStoreFactoryABC,
-    find_data_store_factories,
-)
-from persisty_data.mem_data_item import MemDataItem
-
-
-def get_data_store_by_name() -> Dict[str, DataStoreFactoryABC]:
-    data_stores = {f.get_meta().name: f for f in find_data_store_factories()}
-    return data_stores
+from persisty_data.file_store_abc import FileStoreABC
+from persisty_data.finder.file_store_finder_abc import find_file_stores
 
 
 class ImgType(Enum):
@@ -30,15 +20,13 @@ class ImgType(Enum):
 
 @dataclass
 class ImgResizer:
-    resized_store: DataStoreABC = field(
+    resized_store: FileStoreABC = field(
         default_factory=lambda: next(
-            s for s in find_data_stores() if s.get_meta().name == "resized_image"
+            s for s in find_file_stores() if s.get_meta().name == "resized_image"
         )
     )
-    store_factories: Dict[str, DataStoreFactoryABC] = field(
-        default_factory=lambda: {
-            f.get_meta().name: f for f in find_data_store_factories()
-        }
+    data_stores: Dict[str, FileStoreABC] = field(
+        default_factory=lambda: {f.get_meta().name: f for f in find_file_stores()}
     )
     max_width: int = 1024
     max_height: int = 768
@@ -51,7 +39,8 @@ class ImgResizer:
         resized_image_key = f"{store}/{width}_{height}/{key}.{img_type.value}"
         return resized_image_key
 
-    def get_img_type(self, content_type: Optional[str]):
+    @staticmethod
+    def get_img_type(content_type: Optional[str]):
         if content_type is None:
             return ImgType.PNG
         img_type = content_type[6:]
@@ -76,28 +65,25 @@ class ImgResizer:
             store_name, key, width, height, img_type
         )
         resized_store = self.resized_store
-        item = resized_store.read(resized_image_key)
+        item = resized_store.file_read(resized_image_key)
         if not item:
-            source_store = self.store_factories[store_name].create(authorization)
-            item = source_store.read(key)
+            source_store = self.data_stores[store_name]
+            source_store = source_store.get_meta().store_security.get_secured(
+                source_store, authorization
+            )
+            item = source_store.file_read(key)
             if not item:
                 return
             img = Image.open(item.get_data_reader())
             resized_img = create_resized_img(img, width, height)
 
-            with io.BytesIO() as output:
+            with resized_store.content_write(
+                resized_image_key, f"image/{img_type.value}"
+            ) as output:
                 resized_img.save(output, format=img_type.value)
-                value = output.getvalue()
-            item = MemDataItem(
-                value, resized_image_key, _content_type=f"image/{img_type.value}"
-            )
-            resized_store.create(item)
+            item = resized_store.file_read(resized_image_key)
 
-        resized_factory = self.store_factories[resized_store.get_meta().name]
-        download_url = resized_factory.get_download_url(
-            resized_image_key, authorization
-        )
-        return download_url
+        return item.download_url
 
 
 def create_resized_img(img: Image, width: int, height: int):
