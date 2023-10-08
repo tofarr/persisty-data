@@ -12,6 +12,8 @@ from starlette.routing import Route
 from persisty_data.file_handle import FileHandle
 from persisty_data.file_store_abc import FileStoreABC
 
+CHUNK_SIZE = 64 * 1024
+
 
 def create_route_for_part_upload(
     file_store: FileStoreABC,
@@ -21,6 +23,7 @@ def create_route_for_part_upload(
         part_id = request.path_params.get("part_id")
 
         token = request.headers.get("authorization")
+        token = token[7:] if token and token.lower().startswith('bearer ') else None
         authorization = authorizer.authorize(token) if token else None
 
         secured_store = file_store.get_meta().store_security.get_secured(
@@ -29,7 +32,7 @@ def create_route_for_part_upload(
         with secured_store.upload_write(part_id) as writer:
             async for data in request.stream():
                 writer.write(data)
-
+            writer.flush()
         return Response(status_code=200)
 
     name = file_store.get_meta().name
@@ -98,7 +101,7 @@ def content_iterator(
         if byte_range:
             reader.seek(byte_range[0])
         while True:
-            data = reader.read()
+            data = reader.read(CHUNK_SIZE)
             if not data:
                 return
             if to_read is not None:
@@ -109,6 +112,8 @@ def content_iterator(
                     data = data[:to_read]
                     yield data
                     return
+            else:
+                yield data
 
 
 def parse_ranges(request: Request) -> Optional[Tuple[int, int]]:
@@ -134,11 +139,12 @@ def create_route_for_download(
     async def download(request: Request) -> Response:
         key = request.path_params.get("key")
         token = request.headers.get("authorization")
+        token = token[7:] if token and token.lower().startswith('bearer ') else None
         authorization = authorizer.authorize(token) if token else None
         secured_file_store = file_store.get_meta().store_security.get_secured(
             file_store, authorization
         )
-        file_handle = secured_file_store.read(key)
+        file_handle = secured_file_store.file_read(key)
         if not file_handle:
             return Response(status_code=404)
 

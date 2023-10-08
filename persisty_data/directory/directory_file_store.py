@@ -31,9 +31,9 @@ class DirectoryFileStore(PersistyFileStoreABC):
 
     def __post_init__(self):
         if not self.store_dir:
-            self.store_dir = Path("file_store", self.meta.name, "store")
+            self.store_dir = Path("../file_store", self.meta.name, "store")
         if not self.upload_dir:
-            self.upload_dir = Path("file_store", self.meta.name, "upload")
+            self.upload_dir = Path("../file_store", self.meta.name, "upload")
 
     def content_write(
         self,
@@ -61,7 +61,7 @@ class DirectoryFileStore(PersistyFileStoreABC):
         try:
             file_name = key_to_path(self.upload_dir, str(upload_part.upload_id))
             file_name.mkdir(parents=True, exist_ok=True)
-            writer = open(key_to_path(self.upload_dir, part_id), "wb")
+            writer = open(key_to_path(file_name, part_id), "wb")
             # noinspection PyTypeChecker
             return writer
         except FileNotFoundError:
@@ -88,7 +88,7 @@ class DirectoryFileStore(PersistyFileStoreABC):
         upload_handle = self.upload_handle_store.read(str(upload_id))
         if not upload_handle or upload_handle.store_name != self.meta.name:
             return
-        file_handle_id = f"{self.meta.name}/{upload_handle.store_name}"
+        file_handle_id = f"{self.meta.name}/{upload_handle.file_name}"
         file_handle = self.file_handle_store.read(file_handle_id)
         md5 = hashlib.md5()
         size_in_bytes = 0
@@ -99,20 +99,26 @@ class DirectoryFileStore(PersistyFileStoreABC):
                 SearchOrder((SearchOrderAttr("part_number"),)),
             )
         )
-        with open(key_to_path(self.store_dir, upload_handle.file_name), "wb") as writer:
+        path = key_to_path(self.store_dir, upload_handle.file_name)
+        path.parent.mkdir(exist_ok=True, parents=True)
+        with open(path, "wb") as writer:
             for upload_part in upload_parts:
                 file_name = key_to_path(
                     self.upload_dir, f"{upload_id}/{upload_part.id}"
                 )
                 with open(file_name, "rb") as reader:
-                    buffer = reader.read(COPY_BUFFER_SIZE)
-                    writer.write(buffer)
-                    md5.update(buffer)
-                    size_in_bytes += len(buffer)
+                    while True:
+                        buffer = reader.read(COPY_BUFFER_SIZE)
+                        if not buffer:
+                            break
+                        writer.write(buffer)
+                        md5.update(buffer)
+                        size_in_bytes += len(buffer)
                 os.remove(file_name)
 
         new_file_handle = PersistyFileHandle(
             id=file_handle_id,
+            store_name=self.meta.name,
             file_name=upload_handle.file_name,
             upload_id=upload_handle.id,
             content_type=upload_handle.content_type,

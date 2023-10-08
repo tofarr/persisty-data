@@ -148,4 +148,4 @@ cython_debug/
 *node_modules
 *.serverless
 
-examples/messager/data_store/
+examples/data_store/

@@ -119,6 +119,7 @@ def create_action_for_file_search(
         result = file_handle_result_set_type(
             results=[
                 file_handle_result_type(
+                    key=item.file_name,
                     item=item,
                     updatable=update_filter.match(item, _ATTRS),
                     deletable=create_filter.match(item, _ATTRS),
@@ -202,6 +203,7 @@ def create_action_for_upload_finish(
         if item:
             store_access = secured_store.get_meta().store_access
             return file_handle_result_type(
+                key=item.file_name,
                 item=item,
                 updatable=store_access.update_filter.match(item, _ATTRS),
                 deletable=store_access.create_filter.match(item, _ATTRS),

@@ -21,7 +21,7 @@ from persisty_data.generator.content_type_generator import ContentTypeGenerator
 class PersistyFileHandle:
     """Metadata about a file"""
 
-    id: str  # Combo of store_name and file_name
+    id: str = Attr()  # Combo of store_name and file_name
     store_name: str
     file_name: str
     upload_id: Optional[UUID]
