@@ -130,6 +130,8 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         id_ = str(uuid4())
         if not file_name:
             file_name = id_
+            if content_type:
+                file_name = f"{id_}.{content_type.split('/')[-1]}"
         if not content_type:
             content_type = mimetypes.guess_type(file_name)[0]
         upload_handle = PersistyUploadHandle(
