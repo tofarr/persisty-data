@@ -31,9 +31,9 @@ class DirectoryFileStore(PersistyFileStoreABC):
 
     def __post_init__(self):
         if not self.store_dir:
-            self.store_dir = Path(self.meta.name, "store")
+            self.store_dir = Path("file_store", self.meta.name, "store")
         if not self.upload_dir:
-            self.store_dir = Path(self.meta.name, "upload")
+            self.upload_dir = Path("file_store", self.meta.name, "upload")
 
     def content_write(
         self,
@@ -41,7 +41,9 @@ class DirectoryFileStore(PersistyFileStoreABC):
         content_type: Optional[str] = None,
     ) -> IOBase:
         try:
-            writer = open(key_to_path(self.store_dir, file_name), "wb")
+            path = key_to_path(self.store_dir, file_name)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            writer = open(path, "wb")
             writer = DirectoryFileHandleWriter(
                 writer=writer, file_name=file_name, content_type=content_type
             )
@@ -59,8 +61,7 @@ class DirectoryFileStore(PersistyFileStoreABC):
         try:
             file_name = key_to_path(self.upload_dir, str(upload_part.upload_id))
             file_name.mkdir(parents=True, exist_ok=True)
-            file_name = f"{upload_part.upload_id}/{part_id}"
-            writer = open(key_to_path(self.upload_dir, file_name), "wb")
+            writer = open(key_to_path(self.upload_dir, part_id), "wb")
             # noinspection PyTypeChecker
             return writer
         except FileNotFoundError:

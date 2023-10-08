@@ -131,7 +131,7 @@ class FileStoreABC(ABC):
     @abstractmethod
     def upload_create(
         self,
-        file_name: str,
+        file_name: Optional[str],
         content_type: Optional[str],
         size_in_bytes: Optional[int],
     ) -> Optional[UploadHandle]:

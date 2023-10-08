@@ -29,7 +29,7 @@ def create_action_for_file_read(
 
     @action(name=f"{store.get_meta().name}_file_read", triggers=WEB_GET)
     def file_read(
-        file_name: str, authorization: Optional[Authorization]
+        file_name: str, authorization: Optional[Authorization] = None
     ) -> Optional[file_handle_result_type]:
         secured_store = store.get_secured(authorization)
         item = secured_store.file_read(file_name)
@@ -53,7 +53,7 @@ def create_action_for_file_read_batch(
 
     @action(name=f"{store.get_meta().name}_file_read_batch", triggers=WEB_GET)
     def file_read_batch(
-        file_names: List[str], authorization: Optional[Authorization]
+        file_names: List[str], authorization: Optional[Authorization] = None
     ) -> List[Optional[file_handle_result_type]]:
         secured_store = store.get_secured(authorization)
         items = secured_store.file_read_batch(file_names)
@@ -80,10 +80,10 @@ def create_action_for_file_count(store: FileStoreABC):
 
     @action(name=f"{store.get_meta().name}_file_count", triggers=WEB_GET)
     def file_count(
-        search_filter: FileHandleSearchFilter, authorization: Optional[Authorization]
+        search_filter: Optional[FileHandleSearchFilter] = None, authorization: Optional[Authorization] = None
     ) -> int:
         secured_store = store.get_secured(authorization)
-        search_filter = search_filter.to_search_filter()
+        search_filter = search_filter.to_search_filter() if search_filter else INCLUDE_ALL
         result = secured_store.file_count(search_filter)
         return result
 
@@ -160,7 +160,7 @@ def create_action_for_upload_create(store: FileStoreABC):
 
     @action(name=f"{store.get_meta().name}_upload_create", triggers=WEB_POST)
     def upload_create(
-        file_name: str,
+        file_name: Optional[str] = None,
         content_type: Optional[str] = None,
         size_in_bytes: Optional[int] = None,
         authorization: Optional[Authorization] = None,

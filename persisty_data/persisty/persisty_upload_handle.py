@@ -22,7 +22,7 @@ class PersistyUploadHandle:
     Metadata about an upload
     """
 
-    id: str
+    id: str = Attr(creatable=True)
     store_name: str
     file_name: str
     content_type: Optional[str] = Attr(

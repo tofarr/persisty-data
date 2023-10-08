@@ -30,7 +30,8 @@ def stored_file_handle(file_store_meta: FileStoreMeta):
         schema = DataclassSchemaFactory().from_type(cls, context, path, ref_schemas)
         schema.schema["persistyData"] = {
             "store_name": file_store_meta.name,
-            "creatable": file_store_meta.store_access.create_filter is not EXCLUDE_ALL
+            "creatable": file_store_meta.store_access.create_filter is not EXCLUDE_ALL,
+            "maxPartSize": file_store_meta.max_part_size
         }
         return schema
 
