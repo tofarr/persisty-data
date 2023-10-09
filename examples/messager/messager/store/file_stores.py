@@ -12,7 +12,7 @@ message_image_file_store = DirectoryFileStore(
 
 img_resize_file_store = DirectoryFileStore(
     meta=FileStoreMeta(
-        name="resized_images",
+        name="resized_image",
         permitted_content_types=IMG_MIME_TYPE
     )
 )

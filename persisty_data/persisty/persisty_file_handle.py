@@ -9,6 +9,7 @@ from persisty.security.store_security import INTERNAL_ONLY
 from persisty.stored import stored
 
 from persisty_data.generator.content_type_generator import ContentTypeGenerator
+from persisty_data.generator.file_handle_id_generator import FileHandleIdGenerator
 
 
 @stored(
@@ -21,10 +22,10 @@ from persisty_data.generator.content_type_generator import ContentTypeGenerator
 class PersistyFileHandle:
     """Metadata about a file"""
 
-    id: str = Attr()  # Combo of store_name and file_name
+    id: str = Attr(create_generator=FileHandleIdGenerator())  # Combo of store_name and file_name
     store_name: str
     file_name: str
-    upload_id: Optional[UUID]
+    upload_id: Optional[UUID] = None
     content_type: Optional[str] = Attr(create_generator=ContentTypeGenerator())
     etag: str
     size_in_bytes: int

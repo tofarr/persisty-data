@@ -12,6 +12,7 @@ from persisty_data.persisty.persisty_file_handle import PersistyFileHandle
 @dataclass
 class DirectoryFileHandleWriter(IOBase):
     writer: BinaryIO
+    store_name: str
     file_name: str
     content_type: Optional[str]
     size_in_bytes: int = 0
@@ -21,7 +22,8 @@ class DirectoryFileHandleWriter(IOBase):
     )
 
     def __enter__(self):
-        return self.writer.__enter__()
+        self.writer.__enter__()
+        return self
 
     def write(self, __b) -> int | None:
         self.hash.update(__b)
@@ -33,6 +35,7 @@ class DirectoryFileHandleWriter(IOBase):
         result = self.writer.__exit__(exc_type, exc_val, exc_tb)
         self.file_handle_store.create(
             PersistyFileHandle(
+                store_name=self.store_name,
                 file_name=self.file_name,
                 content_type=self.content_type,
                 etag=self.hash.hexdigest(),
