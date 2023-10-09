@@ -3,3 +3,4 @@ bcrypt
 python-dotenv[cli]
 servey[web_page]
 persisty-data
+pillow

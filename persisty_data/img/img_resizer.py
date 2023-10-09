@@ -18,6 +18,9 @@ class ImgType(Enum):
     WEBP = "webp"
 
 
+IMG_MIME_TYPE = tuple(f"image/{t.value}" for t in ImgType)
+
+
 @dataclass
 class ImgResizer:
     resized_store: FileStoreABC = field(

@@ -6,6 +6,7 @@ from persisty.impl.dynamodb.partition_sort_index import PartitionSortIndex
 from persisty.link.belongs_to import BelongsTo
 from persisty.security.owned_store_security import OwnedStoreSecurity
 from persisty.stored import stored
+from persisty_data.img.has_img import HasImg
 
 from messager.store.message_state import MessageState
 
@@ -27,4 +28,4 @@ class Message:
     updated_at: datetime
     author_id: UUID
     author: ForwardRef("servey_main.models.user.User") = BelongsTo()
-    # user_image_url = HasUrl()
+    message_image_url: str = HasImg()

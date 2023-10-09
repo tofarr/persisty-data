@@ -48,7 +48,7 @@ def stored_file_handle(file_store_meta: FileStoreMeta):
         # noinspection PyTypeChecker
         params["content_type"] = field(
             metadata={
-                "schemey": schema_from_type(file_store_meta.permitted_content_types)
+                "schemey": Schema({"enum": list(file_store_meta.permitted_content_types)}, str)
             }
         )
 

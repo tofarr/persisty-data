@@ -108,5 +108,6 @@ class HasUrl(LinkABC):
 
     def update_json_schema(self, json_schema: ExternalItemType):
         key_attr_schema = json_schema.get("properties").get(self.key_attr_name)
-        file_store = self.get_linked_file_store()
-        key_attr_schema["persistyDataStore"] = file_store.get_json_schema()
+        key_attr_schema["persistyHasUrl"] = {
+            "fileStoreName": self.file_store_name
+        }

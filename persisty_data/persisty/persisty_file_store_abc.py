@@ -110,6 +110,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         page_key: Optional[str] = None,
         limit: Optional[int] = None,
     ) -> ResultSet[FileHandle]:
+        search_filter = search_filter & AttrFilter('store_name', AttrFilterOp.eq, self.meta.name)
         search_order = search_order.to_search_order() if search_order else None
         result_set = self.file_handle_store.search(
             search_filter, search_order, page_key, limit
@@ -121,6 +122,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         return result
 
     def file_count(self, search_filter: SearchFilterABC = INCLUDE_ALL) -> int:
+        search_filter = search_filter & AttrFilter('store_name', AttrFilterOp.eq, self.meta.name)
         result = self.file_handle_store.count(search_filter)
         return result
 
