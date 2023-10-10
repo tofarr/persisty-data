@@ -35,6 +35,7 @@ def create_action_for_file_read(
         item = secured_store.file_read(file_name)
         store_access = secured_store.get_meta().store_access
         return file_handle_result_type(
+            key=item.file_name,
             item=item,
             updatable=store_access.update_filter.match(item, _ATTRS),
             deletable=store_access.create_filter.match(item, _ATTRS),
