@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, Type
+from typing import Dict, Type, Optional
 
 from persisty.key_config.attr_key_config import AttrKeyConfig
 from persisty.search_filter.exclude_all import EXCLUDE_ALL
@@ -48,7 +48,10 @@ def stored_file_handle(file_store_meta: FileStoreMeta):
         # noinspection PyTypeChecker
         params["content_type"] = field(
             metadata={
-                "schemey": Schema({"enum": list(file_store_meta.permitted_content_types)}, str)
+                "schemey": Schema({"AnyOf": [
+                    {"type": "null"},
+                    {"enum": list(file_store_meta.permitted_content_types)}
+                ]}, Optional[str])
             }
         )
 

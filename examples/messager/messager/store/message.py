@@ -28,4 +28,4 @@ class Message:
     updated_at: datetime
     author_id: UUID
     author: ForwardRef("servey_main.models.user.User") = BelongsTo()
-    message_image_url: str = HasUrl()
+    message_image_url: Optional[str] = HasUrl()

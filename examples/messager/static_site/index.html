@@ -134,7 +134,8 @@
     </style>
     <script type="text/javascript">
 
-        function renderMessage(message){
+        function renderMessage(result){
+            const message = result.item
             const element = document.createElement('div')
             element.innerHTML = `
                 <div class="messageAuthor"></div>
@@ -147,11 +148,12 @@
             element.getElementsByClassName("messageBody")[0].appendChild(document.createTextNode(message.messageText))
             const messageContent= document.createElement('div')
             messageContent.className = 'messageContent'
-            if (message.userImageUrl) {
+            if (message.messageImageUrl) {
+                debugger
                 const messageImageContainer = document.createElement('div')
                 messageImageContainer.className = "messageImage"
                 const img = new Image()
-                img.src = message.userImageUrl
+                img.src = message.messageImageUrl
                 messageImageContainer.appendChild(img)
                 element.appendChild(messageImageContainer)
             }
@@ -169,16 +171,19 @@
                 body: JSON.stringify({
                     query: `
                       query($pageKey: String) {
-                        messageSearch(searchFilter: {messageState_Eq: FEATURED}, pageKey: $pageKey, limit: 10, searchOrder: {attr: created_at, desc: true}) {
+                        messageSearch(pageKey: $pageKey, limit: 10, searchOrder: { attr:updated_at, desc: true}) {
                           nextPageKey
-                        results{
-                            id
-                            messageText
-                            userImageUrl
-                            createdAt
-                            author{
+                          results{
+                            item{
                               id
-                              username
+                              messageText
+                              createdAt
+                              messageImageUrl
+                              messageImageKey
+                              author{
+                                id
+                                username
+                              }
                             }
                           }
                         }
@@ -256,43 +261,43 @@
             })
         }
 
-        function handleUploadImage() {
-            const fileElement = document.getElementById('uploadFile')
-            let fileName = fileElement.value.split('/').pop().split('\\').pop()
-            const authorization = sessionStorage.getItem('authorization')
-            const current_user = JSON.parse(atob(authorization.split('.')[1]))
-            // Storage insists that ownership is established in the key
-            let key = current_user.sub + '/' + fileName
-            fetch(`actions/user-image-get-upload-form?key=${encodeURIComponent(key)}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${authorization}`
-                }
-            }).then(response => response.json()).then((uploadForm) => {
-                const formData = new FormData()
-                if (uploadForm.pre_populated_fields) {
-                    uploadForm.pre_populated_fields.forEach(f => formData.append(f.name, f.value))
-                }
-                formData.append(uploadForm.file_param, fileElement.files[0], fileName);
-                fetch(uploadForm.url, {
-                    method: uploadForm.method,
-                    body: formData
-                }).then((response) => {
-                    if (response.status === 200) {
-                        response.json().then(result => {
-                            currentImageKey = result.key
-                            const img = new Image()
-                            img.src = `/data/user-image/public/${result.key}`
-                            const container = document.getElementById("imageContainer")
-                            container.innerHTML = ""
-                            container.appendChild(img)
-                            setVisible('postMessageForm')
-                        })
-                    } else {
-                        alert('Error in upload')
-                    }
-                });
-            })
+        async function handleUploadImage() {
+            try {
+                const fileElement = document.getElementById('uploadFile')
+                const authorization = sessionStorage.getItem('authorization')
+                const headers = {'Authorization': `Bearer ${authorization}`}
+                const file = fileElement.files[0]
+                const upload_create_response = await fetch("actions/message-image-upload-create", {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({"content_type": file.type})
+                })
+                const upload_create = await upload_create_response.json()
+                const upload_response = await fetch(upload_create.parts.results[0].upload_url, {
+                    method: "POST",
+                    headers,
+                    body: file
+                })
+                await upload_response.text()
+
+                const upload_finish_response = await fetch("actions/message-image-upload-finish", {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({upload_id: upload_create.id})
+                })
+                const upload_finish = await upload_finish_response.json()
+
+                currentImageKey = upload_finish.key
+                const img = new Image()
+                img.src = `/resized-img?store_name=message_image&file_name=${encodeURIComponent(upload_finish.key)}&content_type=${encodeURIComponent(upload_finish.item.content_type)}&width=800&height=600`
+                const container = document.getElementById("imageContainer")
+                container.innerHTML = ""
+                container.appendChild(img)
+                setVisible('postMessageForm')
+            }catch(e) {
+                console.log(e)
+                alert('Error in upload')
+            }
         }
 
         function handlePostMessage() {
@@ -304,7 +309,7 @@
                 body: JSON.stringify({
                     item: {
                         message_text: document.getElementById('messageText').value,
-                        user_image_key: currentImageKey
+                        message_image_key: currentImageKey
                     }
                 })
             }).then(response => response.json()).then(loadAndRenderMessages)

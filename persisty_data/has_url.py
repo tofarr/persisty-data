@@ -59,12 +59,10 @@ class HasUrl(LinkABC):
     ) -> List[Optional[T]]:
         if not keys:
             return []
-        result = list(
-            self.get_linked_file_store().get_all_download_urls(
-                iter(keys), authorization
-            )
-        )
-        return result
+        file_store = self.get_linked_file_store().get_secured(authorization)
+        results = file_store.file_read_batch(keys)
+        urls = [result.download_url if result else None for result in results]
+        return urls
 
     def arg_extractor(self, obj):
         return [getattr(obj, self.key_attr_name)]

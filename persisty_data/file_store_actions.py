@@ -63,6 +63,7 @@ def create_action_for_file_read_batch(
         update_filter = store_access.update_filter
         results = [
             file_handle_result_type(
+                key=item.file_name,
                 item=item,
                 updatable=update_filter.match(item, _ATTRS),
                 deletable=create_filter.match(item, _ATTRS),
