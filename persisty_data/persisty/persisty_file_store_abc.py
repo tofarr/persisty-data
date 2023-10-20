@@ -7,8 +7,7 @@ from typing import Optional, List, Iterator
 from uuid import uuid4
 
 from dateutil.relativedelta import relativedelta
-from persisty.attr.attr_filter import AttrFilter
-from persisty.attr.attr_filter_op import AttrFilterOp
+from persisty.attr.attr_filter import attr_eq
 from persisty.batch_edit import BatchEdit
 from persisty.result_set import ResultSet
 from persisty.search_filter.exclude_all import EXCLUDE_ALL
@@ -110,7 +109,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         page_key: Optional[str] = None,
         limit: Optional[int] = None,
     ) -> ResultSet[FileHandle]:
-        search_filter = search_filter & AttrFilter('store_name', AttrFilterOp.eq, self.meta.name)
+        search_filter = search_filter & attr_eq('store_name', self.meta.name)
         search_order = search_order.to_search_order() if search_order else None
         result_set = self.file_handle_store.search(
             search_filter, search_order, page_key, limit
@@ -122,7 +121,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         return result
 
     def file_count(self, search_filter: SearchFilterABC = INCLUDE_ALL) -> int:
-        search_filter = search_filter & AttrFilter('store_name', AttrFilterOp.eq, self.meta.name)
+        search_filter = search_filter & attr_eq('store_name', self.meta.name)
         result = self.file_handle_store.count(search_filter)
         return result
 
@@ -189,7 +188,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         self, page_key: Optional[str] = None, limit: Optional[int] = None
     ) -> UploadHandleResultSet:
         result = self.upload_handle_store.search(
-            AttrFilter("store_name", AttrFilterOp.eq, self.meta.name),
+            attr_eq("store_name", self.meta.name),
             SearchOrder((SearchOrderAttr("file_name"),)),
             page_key,
             limit,
@@ -198,7 +197,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
 
     def upload_count(self) -> int:
         result = self.upload_handle_store.count(
-            AttrFilter("store_name", AttrFilterOp.eq, self.meta.name)
+            attr_eq("store_name", self.meta.name)
         )
         return result
 
@@ -234,7 +233,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         page_key: Optional[str] = None,
         limit: Optional[int] = None,
     ) -> UploadPartResultSet:
-        search_filter = AttrFilter("upload_id", AttrFilterOp.eq, upload_id__eq)
+        search_filter = attr_eq("upload_id", upload_id__eq)
         upload_handle = self.upload_handle_store.read(upload_id__eq)
         result = self.upload_part_store.search(
             search_filter, SearchOrder((SearchOrderAttr("part_number"),)), page_key, limit
@@ -246,6 +245,6 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         return result
 
     def upload_part_count(self, upload_id__eq: str) -> int:
-        search_filter = AttrFilter("upload_id", AttrFilterOp.eq, upload_id__eq)
+        search_filter = attr_eq("upload_id", upload_id__eq)
         result = self.upload_part_store.count(search_filter)
         return result

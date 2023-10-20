@@ -1,3 +1,4 @@
+import dataclasses
 from uuid import UUID
 
 from persisty.search_filter.exclude_all import EXCLUDE_ALL
@@ -9,17 +10,25 @@ from persisty.store.attr_override_store import AttrOverrideStore
 from persisty.store.store_abc import StoreABC
 from servey.security.authorization import Authorization
 
+from persisty.store_meta import StoreMeta
+
 
 class UserStoreSecurity(StoreSecurityABC[T]):
-    def get_api(self, store: StoreABC) -> StoreABC:
+    def get_api_meta(self, store_meta: StoreMeta) -> StoreMeta:
         # Make sure that the PasswordDigest is update only and never returned to clients.
+        attrs = tuple(
+            dataclasses.replace(attr, readable=False)
+            if attr.name == "password_digest"
+            else attr
+            for attr in store_meta.attrs
+        )
+        store_meta = dataclasses.replace(store_meta, attrs=attrs)
+        return store_meta
+
+    def get_secured(self, store: StoreABC, authorization: Authorization) -> StoreABC:
         store = AttrOverrideStore(
             store=store, attr_name="password_digest", readable=False
         )
-        return store
-
-    def get_secured(self, store: StoreABC, authorization: Authorization) -> StoreABC:
-        store = self.get_api(store)
         filters = ObjFilterFactory(store.get_meta())
         if not authorization:
             # Public access to create new users and to read / search existing users is

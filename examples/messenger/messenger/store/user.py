@@ -13,7 +13,7 @@ from persisty.attr.attr import Attr
 from persisty.result_set import ResultSet
 from persisty.stored import stored
 
-from messager.store.user_store_security import UserStoreSecurity
+from messenger.store.user_store_security import UserStoreSecurity
 
 
 @stored(

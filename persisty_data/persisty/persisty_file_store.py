@@ -4,8 +4,7 @@ from io import IOBase
 from typing import Optional, Iterator
 from uuid import uuid4
 
-from persisty.attr.attr_filter import AttrFilter
-from persisty.attr.attr_filter_op import AttrFilterOp
+from persisty.attr.attr_filter import attr_eq
 from persisty.search_order.search_order import SearchOrder
 from persisty.search_order.search_order_attr import SearchOrderAttr
 from persisty.store.store_abc import StoreABC
@@ -55,8 +54,8 @@ class PersistyFileStore(PersistyFileStoreABC):
             return
         self.data_chunk_store.delete_all(
             (
-                AttrFilter("upload_id", AttrFilterOp.eq, upload_part.upload_id)
-                & AttrFilter("part_number", AttrFilterOp.eq, upload_part.part_number)
+                attr_eq("upload_id", upload_part.upload_id)
+                & attr_eq("part_number", upload_part.part_number)
             )
         )
         writer = DataChunkWriter(upload_part=upload_part)
@@ -66,7 +65,7 @@ class PersistyFileStore(PersistyFileStoreABC):
         file_handle = self.file_handle_store.read(self._to_key(file_name))
         if file_handle:
             chunks = self.data_chunk_store.search_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, file_handle.upload_id),
+                attr_eq("upload_id", file_handle.upload_id),
                 SearchOrder((SearchOrderAttr("sort_key"),)),
             )
             result = DataChunkReader(chunks)
@@ -81,7 +80,7 @@ class PersistyFileStore(PersistyFileStoreABC):
         result = self.file_handle_store._delete(key, file_handle)
         if result:
             self.data_chunk_store.delete_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, file_handle.upload_id)
+                attr_eq("upload_id", file_handle.upload_id)
             )
         return result
 
@@ -94,7 +93,7 @@ class PersistyFileStore(PersistyFileStoreABC):
         md5 = hashlib.md5()
         size_in_bytes = 0
         data_chunks = self.data_chunk_store.search_all(
-            AttrFilter("upload_id", AttrFilterOp.eq, upload_id),
+            attr_eq("upload_id", upload_id),
             SearchOrder((SearchOrderAttr("sort_key)"),)),
         )
         for data_chunk in data_chunks:
@@ -116,12 +115,12 @@ class PersistyFileStore(PersistyFileStoreABC):
                 file_handle_id, file_handle, new_file_handle
             )
             self.data_chunk_store.delete_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, str(old_upload_id))
+                attr_eq("upload_id", str(old_upload_id))
             )
         else:
             file_handle = self.file_handle_store.create(new_file_handle)
         self.upload_part_store.delete_all(
-            AttrFilter("upload_id", AttrFilterOp.eq, upload_id)
+            attr_eq("upload_id", upload_id)
         )
         return self._to_file_handle(file_handle)
 
@@ -129,9 +128,9 @@ class PersistyFileStore(PersistyFileStoreABC):
         result = self.upload_handle_store.delete(upload_id)
         if result:
             self.upload_part_store.delete_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, upload_id)
+                attr_eq("upload_id", upload_id)
             )
             self.data_chunk_store.delete_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, upload_id)
+                attr_eq("upload_id", upload_id)
             )
         return result

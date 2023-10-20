@@ -11,6 +11,6 @@ def configure(context: MarshallerContext):
     from servey.security.authenticator.password_authenticator_abc import (
         PasswordAuthenticatorABC,
     )
-    from messager.user_authenticator import UserAuthenticator
+    from messenger.user_authenticator import UserAuthenticator
 
     register_impl(PasswordAuthenticatorABC, UserAuthenticator, context)

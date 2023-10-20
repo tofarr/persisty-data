@@ -2,8 +2,7 @@ from dataclasses import dataclass
 from io import IOBase
 from typing import Optional, Iterator
 
-from persisty.attr.attr_filter import AttrFilter
-from persisty.attr.attr_filter_op import AttrFilterOp
+from persisty.attr.attr_filter import attr_eq
 from persisty.batch_edit import BatchEdit
 
 from persisty_data.file_handle import FileHandle
@@ -135,7 +134,7 @@ class S3FileStore(PersistyFileStoreABC):
         result = self.upload_handle_store._delete(upload_id, upload_handle)
         if result:
             self.upload_part_store.delete_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, upload_id)
+                attr_eq("upload_id", upload_id)
             )
             get_s3_client().abort_multipart_upload(
                 Bucket=self.bucket_name,

@@ -39,7 +39,7 @@ implementations for providing pre-signed read urls and [Upload Forms](persisty_d
 
 ## Example
 
-[A variant of the persisty messager example application demonstrates file upload.](examples/messager)
+[A variant of the persisty messenger example application demonstrates file upload.](examples/messenger)
 
 ## Installing local development dependencies
 

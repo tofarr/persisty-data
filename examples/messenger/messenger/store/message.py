@@ -8,7 +8,7 @@ from persisty.security.owned_store_security import OwnedStoreSecurity
 from persisty.stored import stored
 from persisty_data.has_url import HasUrl
 
-from messager.store.message_state import MessageState
+from messenger.store.message_state import MessageState
 
 
 @stored(

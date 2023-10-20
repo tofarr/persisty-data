@@ -1,6 +1,6 @@
-# Persisty Data Example App : Messager
+# Persisty Data Example App : messenger
 
-In [the example bundled with persisty](https://github.com/tofarr/persisty/examples/messager_5), we created an
+In [the example bundled with persisty](https://github.com/tofarr/persisty/examples/messenger_5), we created an
 application to allow users to post messages to a board. This example adds the ability to upload an image to be
 associated with each message. As previously, this code is compatible with both an AWS Lambda Environment (Using S3)
 and a hosted environment. For a lambda deployment using S3, you will need to choose a universally unique bucket name.
@@ -11,12 +11,12 @@ to this)
 ## Running the Code
 
 * Clone the git repo `git clone https://github.com/tofarr/persisty-data.git`
-* Go to the directory `cd persisty-data/examples/messager_6`
+* Go to the directory `cd persisty-data/examples/messenger_6`
 * Create a virtual environment. (I used [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
   for this)
   * `pip install virtualenvwrapper`
-  * `mkvirtualenv messager_6`
-  * `workon messager_6`
+  * `mkvirtualenv messenger_6`
+  * `workon messenger_6`
 * Install requirements with `pip install -r requirments.txt`
 * Run locally with `python -m main`
 

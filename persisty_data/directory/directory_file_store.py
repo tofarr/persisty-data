@@ -8,8 +8,7 @@ from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
-from persisty.attr.attr_filter import AttrFilter
-from persisty.attr.attr_filter_op import AttrFilterOp
+from persisty.attr.attr_filter import attr_eq
 from persisty.batch_edit import BatchEdit
 from persisty.search_order.search_order import SearchOrder
 from persisty.search_order.search_order_attr import SearchOrderAttr
@@ -95,7 +94,7 @@ class DirectoryFileStore(PersistyFileStoreABC):
 
         upload_parts = list(
             self.upload_part_store.search_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, upload_id),
+                attr_eq("upload_id", upload_id),
                 SearchOrder((SearchOrderAttr("part_number"),)),
             )
         )
@@ -138,9 +137,7 @@ class DirectoryFileStore(PersistyFileStoreABC):
     def upload_delete(self, upload_id: str) -> bool:
         result = self.upload_handle_store.delete(upload_id)
         if result:
-            self.upload_part_store.delete_all(
-                AttrFilter("upload_id", AttrFilterOp.eq, upload_id)
-            )
+            self.upload_part_store.delete_all(attr_eq("upload_id", upload_id))
             upload_dir = key_to_path(self.upload_dir, upload_id)
             shutil.rmtree(upload_dir)
         return result

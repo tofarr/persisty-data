@@ -17,7 +17,7 @@ from servey.servey_aws import is_lambda_env
 from servey.trigger.web_trigger import WEB_POST, WEB_GET
 
 from persisty.search_filter.filter_factory import filter_factory
-from messager.store.user import User
+from messenger.store.user import User
 
 
 @action(triggers=WEB_POST)
