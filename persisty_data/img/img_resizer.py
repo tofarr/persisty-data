@@ -35,11 +35,15 @@ class ImgResizer:
     max_height: int = 768
 
     def get_resized_image_file_name(
-        self, store: str, file_name: str, width: int, height: int, img_type: ImgType
+            self, store: str, file_name: str, width: int, height: int, img_type: ImgType
     ):
         if store == self.resized_store.get_meta().name:
             return file_name
         resized_image_file_name = f"{store}/{width}_{height}/{file_name}.{img_type.value}"
+        # resized_image_file_name = f"{store}/{width}_{height}/{file_name}"
+        # file_type = f".{img_type.value}"
+        # if not file_name.endswith(file_type):
+        #    resized_image_file_name += file_type
         return resized_image_file_name
 
     @staticmethod
@@ -51,13 +55,13 @@ class ImgResizer:
         return img_type
 
     def get_resized_image_download_url(
-        self,
-        store_name: str,
-        file_name: str,
-        width: Optional[int] = None,
-        height: Optional[int] = None,
-        content_type: Optional[str] = None,
-        authorization: Optional[Authorization] = None,
+            self,
+            store_name: str,
+            file_name: str,
+            width: Optional[int] = None,
+            height: Optional[int] = None,
+            content_type: Optional[str] = None,
+            authorization: Optional[Authorization] = None,
     ):
         width = width or self.max_width
         height = height or self.max_height
@@ -70,23 +74,24 @@ class ImgResizer:
         resized_store = self.resized_store
         item = resized_store.file_read(resized_image_file_name)
         if not item:
-            source_store = self.data_stores[store_name]
-            source_store = source_store.get_meta().store_security.get_secured(
-                source_store, authorization
-            )
-            reader = source_store.content_read(file_name)
-            if not reader:
-                return
-            img = Image.open(reader)
+            img = self.read_img(store_name, authorization, file_name)
             resized_img = create_resized_img(img, width, height)
-
             with resized_store.content_write(
-                resized_image_file_name, f"image/{img_type.value}"
-            ) as output:
-                resized_img.save(output, format=img_type.value)
+                    resized_image_file_name, f"image/{img_type.value}"
+            ) as writer:
+                resized_img.save(writer, format=img_type.value)
             item = resized_store.file_read(resized_image_file_name)
 
         return item.download_url
+
+    def read_img(self, store_name: str, authorization: Optional[Authorization], file_name: str):
+        source_store = self.data_stores[store_name]
+        source_store = source_store.get_meta().store_security.get_secured(
+            source_store, authorization
+        )
+        with source_store.content_read(file_name) as reader:
+            img = Image.open(reader)
+            return img
 
 
 def create_resized_img(img: Image, width: int, height: int):

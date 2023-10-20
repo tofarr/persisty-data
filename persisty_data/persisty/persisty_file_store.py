@@ -1,5 +1,5 @@
 import hashlib
-from dataclasses import field
+from dataclasses import field, dataclass
 from io import IOBase
 from typing import Optional, Iterator
 from uuid import uuid4
@@ -20,6 +20,7 @@ from persisty_data.persisty.persisty_file_store_abc import PersistyFileStoreABC
 from persisty_data.persisty.persisty_upload_part import PersistyUploadPart
 
 
+@dataclass
 class PersistyFileStore(PersistyFileStoreABC):
     data_chunk_store: StoreABC[DataChunk] = field(
         default_factory=get_meta(DataChunk).create_store
@@ -88,19 +89,20 @@ class PersistyFileStore(PersistyFileStoreABC):
         upload_handle = self.upload_handle_store.read(upload_id)
         if not upload_handle or upload_handle.store_name != self.meta.name:
             return
-        file_handle_id = f"{self.meta.name}/{upload_handle.store_name}"
+        file_handle_id = f"{self.meta.name}/{upload_handle.file_name}"
         file_handle = self.file_handle_store.read(file_handle_id)
         md5 = hashlib.md5()
         size_in_bytes = 0
         data_chunks = self.data_chunk_store.search_all(
             attr_eq("upload_id", upload_id),
-            SearchOrder((SearchOrderAttr("sort_key)"),)),
+            SearchOrder((SearchOrderAttr("sort_key"),)),
         )
         for data_chunk in data_chunks:
             md5.update(data_chunk.data)
             size_in_bytes += len(data_chunk.data)
         new_file_handle = PersistyFileHandle(
             id=file_handle_id,
+            store_name=self.meta.name,
             file_name=upload_handle.file_name,
             upload_id=upload_handle.id,
             content_type=upload_handle.content_type,

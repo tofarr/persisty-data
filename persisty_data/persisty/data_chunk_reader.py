@@ -47,20 +47,31 @@ class DataChunkReader(RawIOBase):
     def seekable(self):
         return True
 
-    def seek(self, __offset: int, __whence: int = os.SEEK_CUR) -> int:
-        to_skip = __offset
-        if __offset < 0 or __whence != os.SEEK_CUR:
-            raise NotImplementedError()
+    def seek(self, __offset: int, __whence: int = os.SEEK_SET):
+        if __whence == os.SEEK_SET:  # absolute positioning
+            __whence = os.SEEK_CUR
+            __offset -= self.position_
+        if __whence != os.SEEK_CUR:
+            raise NotImplementedError()  # we do not support seeking relative to the end of the file
+        if __offset < 0:
+            if __offset + self.offset_ < 0:
+                # we do not support going back to previous chunks - in order to do this we would need
+                # to support restarting the stream from the beginning
+                raise NotImplementedError()
+            self.offset_ += __offset
+            self.position_ += __offset
+            return self.position_
         while __offset:
-            if (
-                self.current_chunk is UNDEFINED
-                or (len(self.current_chunk.data) - self.offset_) < __offset
-            ):
-                __offset -= len(self.current_chunk.data) - self.offset_
-                self.current_chunk = next(self.chunks, None)
+            if self.current_chunk is UNDEFINED:
+                self.current_chunk = next(self.chunks)
+            remaining_bytes_in_chunk = len(self.current_chunk.data) - self.offset_
+            if remaining_bytes_in_chunk < __offset:
+                __offset -= remaining_bytes_in_chunk
                 self.offset_ = 0
+                self.position_ += remaining_bytes_in_chunk
+                self.current_chunk = next(self.chunks)
             else:
                 self.offset_ += __offset
+                self.position_ += __offset
                 __offset = 0
-        self.position_ += to_skip - __offset
         return self.position_

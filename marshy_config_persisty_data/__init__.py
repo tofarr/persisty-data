@@ -20,11 +20,17 @@ def configure(context: MarshallerContext):
     from persisty_data.finder.file_store_action_finder import FileStoreActionFinder
     from persisty_data.finder.file_store_route_factory import FileStoreRouteFactory
 
+    from persisty.attr.generator.attr_value_generator_abc import AttrValueGeneratorABC
+    from persisty_data.generator.file_handle_id_generator import FileHandleIdGenerator
+
     context.register_marshaller(BytesMarshaller(), bytes)
     register_impl(FileStoreFinderABC, ModuleFileStoreFinder, context)
     register_impl(StoreMetaFinderABC, FileStoreStoreMetaFinder, context)
     register_impl(ActionFinderABC, FileStoreActionFinder, context)
     register_impl(RouteFactoryABC, FileStoreRouteFactory, context)
+
+    register_impl(AttrValueGeneratorABC, FileHandleIdGenerator, context)
+
     try:
         from persisty_data.finder.file_store_route_factory import FileStoreRouteFactory
 

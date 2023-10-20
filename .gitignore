@@ -149,3 +149,4 @@ cython_debug/
 *.serverless
 
 examples/file_store/
+examples/messenger.db

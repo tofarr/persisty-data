@@ -1,11 +1,13 @@
 [
   {
-    "id": "message_image/60e9559c-cb85-4647-901c-8c79823c9dc4.jpeg",
+    "id": "message_image/0523edab-8e27-415c-8067-49d25e21b225.jpeg",
     "store_name": "message_image",
-    "file_name": "60e9559c-cb85-4647-901c-8c79823c9dc4.jpeg",
+    "file_name": "0523edab-8e27-415c-8067-49d25e21b225.jpeg",
+    "upload_id": "0523edab-8e27-415c-8067-49d25e21b225",
     "content_type": "image/jpeg",
-    "etag": "fa53f23383848c65eb5ac56b4702e7c5",
-    "size_in_bytes": 4468166,
-    "updated_at": "2023-10-08T21:32:02+00:00"
+    "etag": "8841268da986cac5c729855e4ae356b9",
+    "size_in_bytes": 172893,
+    "created_at": "2023-10-20T21:12:32+00:00",
+    "updated_at": "2023-10-20T21:12:32+00:00"
   }
 ]
