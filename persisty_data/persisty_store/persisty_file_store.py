@@ -11,13 +11,13 @@ from persisty.store.store_abc import StoreABC
 from persisty.store_meta import get_meta, StoreMeta
 
 from persisty_data.file_handle import FileHandle
-from persisty_data.persisty.data_chunk import DataChunk
-from persisty_data.persisty.data_chunk_reader import DataChunkReader
-from persisty_data.persisty.data_chunk_writer import DataChunkWriter
-from persisty_data.persisty.persisty_file_handle import PersistyFileHandle
-from persisty_data.persisty.persisty_file_handle_writer import PersistyFileHandleWriter
-from persisty_data.persisty.persisty_file_store_abc import PersistyFileStoreABC
-from persisty_data.persisty.persisty_upload_part import PersistyUploadPart
+from persisty_data.persisty_store.data_chunk import DataChunk
+from persisty_data.persisty_store.data_chunk_reader import DataChunkReader
+from persisty_data.persisty_store.data_chunk_writer import DataChunkWriter
+from persisty_data.persisty_store.persisty_file_handle import PersistyFileHandle
+from persisty_data.persisty_store.persisty_file_handle_writer import PersistyFileHandleWriter
+from persisty_data.persisty_store.persisty_file_store_abc import PersistyFileStoreABC
+from persisty_data.persisty_store.persisty_upload_part import PersistyUploadPart
 
 
 @dataclass

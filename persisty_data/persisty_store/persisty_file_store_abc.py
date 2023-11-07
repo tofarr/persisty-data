@@ -22,9 +22,9 @@ from servey.security.authorizer.authorizer_factory_abc import get_default_author
 from persisty_data.file_handle import FileHandle
 from persisty_data.file_store_abc import FileStoreABC, _Route
 from persisty_data.file_store_meta import FileStoreMeta
-from persisty_data.persisty.persisty_file_handle import PersistyFileHandle
-from persisty_data.persisty.persisty_upload_handle import PersistyUploadHandle
-from persisty_data.persisty.persisty_upload_part import PersistyUploadPart
+from persisty_data.persisty_store.persisty_file_handle import PersistyFileHandle
+from persisty_data.persisty_store.persisty_upload_handle import PersistyUploadHandle
+from persisty_data.persisty_store.persisty_upload_part import PersistyUploadPart
 from persisty_data.routes import create_route_for_part_upload, create_route_for_download
 from persisty_data.stored_file_handle import (
     FileHandleSearchOrder,

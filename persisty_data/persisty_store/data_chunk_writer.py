@@ -5,8 +5,8 @@ from types import TracebackType
 from persisty.finder.store_meta_finder_abc import find_store_meta_by_name
 from persisty.store.store_abc import StoreABC
 
-from persisty_data.persisty.data_chunk import DataChunk, get_sort_key
-from persisty_data.persisty.persisty_upload_part import PersistyUploadPart
+from persisty_data.persisty_store.data_chunk import DataChunk, get_sort_key
+from persisty_data.persisty_store.persisty_upload_part import PersistyUploadPart
 
 
 @dataclass

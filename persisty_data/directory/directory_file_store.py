@@ -17,8 +17,8 @@ from persisty_data.directory.directory_file_handle_writer import (
     DirectoryFileHandleWriter,
 )
 from persisty_data.file_handle import FileHandle
-from persisty_data.persisty.persisty_file_handle import PersistyFileHandle
-from persisty_data.persisty.persisty_file_store_abc import PersistyFileStoreABC
+from persisty_data.persisty_store.persisty_file_handle import PersistyFileHandle
+from persisty_data.persisty_store.persisty_file_store_abc import PersistyFileStoreABC
 
 COPY_BUFFER_SIZE = 1024 * 1024
 

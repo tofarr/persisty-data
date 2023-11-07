@@ -6,8 +6,8 @@ from typing import Optional
 from persisty.finder.store_meta_finder_abc import find_store_meta_by_name
 from persisty.store.store_abc import StoreABC
 
-from persisty_data.persisty.data_chunk_writer import DataChunkWriter
-from persisty_data.persisty.persisty_file_handle import PersistyFileHandle
+from persisty_data.persisty_store.data_chunk_writer import DataChunkWriter
+from persisty_data.persisty_store.persisty_file_handle import PersistyFileHandle
 
 
 @dataclass(kw_only=True)

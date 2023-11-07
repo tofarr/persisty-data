@@ -5,7 +5,7 @@ from typing import Iterator, Optional
 
 from persisty.util import UNDEFINED
 
-from persisty_data.persisty.data_chunk import DataChunk
+from persisty_data.persisty_store.data_chunk import DataChunk
 
 
 @dataclass

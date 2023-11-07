@@ -6,10 +6,10 @@ from persisty.attr.attr_filter import attr_eq
 from persisty.batch_edit import BatchEdit
 
 from persisty_data.file_handle import FileHandle
-from persisty_data.persisty.persisty_file_handle import PersistyFileHandle
-from persisty_data.persisty.persisty_file_store_abc import PersistyFileStoreABC
-from persisty_data.persisty.persisty_upload_handle import PersistyUploadHandle
-from persisty_data.persisty.persisty_upload_part import PersistyUploadPart
+from persisty_data.persisty_store.persisty_file_handle import PersistyFileHandle
+from persisty_data.persisty_store.persisty_file_store_abc import PersistyFileStoreABC
+from persisty_data.persisty_store.persisty_upload_handle import PersistyUploadHandle
+from persisty_data.persisty_store.persisty_upload_part import PersistyUploadPart
 from persisty_data.s3.s3_client import get_s3_client
 from persisty_data.s3.s3_content_writer import S3ContentWriter
 from persisty_data.s3.s3_upload_part_writer import S3UploadPartWriter

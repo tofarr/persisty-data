@@ -7,7 +7,7 @@ from typing import Any, Optional
 from persisty.store.store_abc import StoreABC
 from persisty.store_meta import get_meta
 
-from persisty_data.persisty.persisty_file_handle import PersistyFileHandle
+from persisty_data.persisty_store.persisty_file_handle import PersistyFileHandle
 from persisty_data.s3.s3_client import get_s3_client
 
 

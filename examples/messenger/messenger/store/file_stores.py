@@ -1,5 +1,5 @@
 from persisty_data.directory.directory_file_store import DirectoryFileStore
-from persisty_data.persisty.persisty_file_store import PersistyFileStore
+from persisty_data.persisty_store.persisty_file_store import PersistyFileStore
 from persisty_data.file_store_meta import FileStoreMeta
 from persisty_data.img.img_resizer import IMG_MIME_TYPE
 
