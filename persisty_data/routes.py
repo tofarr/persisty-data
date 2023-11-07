@@ -23,7 +23,7 @@ def create_route_for_part_upload(
         part_id = request.path_params.get("part_id")
 
         token = request.headers.get("authorization")
-        token = token[7:] if token and token.lower().startswith('bearer ') else None
+        token = token[7:] if token and token.lower().startswith("bearer ") else None
         authorization = authorizer.authorize(token) if token else None
 
         secured_store = file_store.get_meta().store_security.get_secured(
@@ -139,7 +139,7 @@ def create_route_for_download(
     async def download(request: Request) -> Response:
         key = request.path_params.get("key")
         token = request.headers.get("authorization")
-        token = token[7:] if token and token.lower().startswith('bearer ') else None
+        token = token[7:] if token and token.lower().startswith("bearer ") else None
         authorization = authorizer.authorize(token) if token else None
         secured_file_store = file_store.get_meta().store_security.get_secured(
             file_store, authorization

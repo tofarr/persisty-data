@@ -15,7 +15,9 @@ from persisty_data.persisty_store.data_chunk import DataChunk
 from persisty_data.persisty_store.data_chunk_reader import DataChunkReader
 from persisty_data.persisty_store.data_chunk_writer import DataChunkWriter
 from persisty_data.persisty_store.persisty_file_handle import PersistyFileHandle
-from persisty_data.persisty_store.persisty_file_handle_writer import PersistyFileHandleWriter
+from persisty_data.persisty_store.persisty_file_handle_writer import (
+    PersistyFileHandleWriter,
+)
 from persisty_data.persisty_store.persisty_file_store_abc import PersistyFileStoreABC
 from persisty_data.persisty_store.persisty_upload_part import PersistyUploadPart
 
@@ -116,23 +118,15 @@ class PersistyFileStore(PersistyFileStoreABC):
             file_handle = self.file_handle_store._update(
                 file_handle_id, file_handle, new_file_handle
             )
-            self.data_chunk_store.delete_all(
-                attr_eq("upload_id", str(old_upload_id))
-            )
+            self.data_chunk_store.delete_all(attr_eq("upload_id", str(old_upload_id)))
         else:
             file_handle = self.file_handle_store.create(new_file_handle)
-        self.upload_part_store.delete_all(
-            attr_eq("upload_id", upload_id)
-        )
+        self.upload_part_store.delete_all(attr_eq("upload_id", upload_id))
         return self._to_file_handle(file_handle)
 
     def upload_delete(self, upload_id: str) -> bool:
         result = self.upload_handle_store.delete(upload_id)
         if result:
-            self.upload_part_store.delete_all(
-                attr_eq("upload_id", upload_id)
-            )
-            self.data_chunk_store.delete_all(
-                attr_eq("upload_id", upload_id)
-            )
+            self.upload_part_store.delete_all(attr_eq("upload_id", upload_id))
+            self.data_chunk_store.delete_all(attr_eq("upload_id", upload_id))
         return result

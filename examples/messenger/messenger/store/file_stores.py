@@ -21,16 +21,9 @@ img_resize_file_store = DirectoryFileStore(
 """
 
 message_image_file_store = PersistyFileStore(
-    meta=FileStoreMeta(
-        name="message_image",
-        permitted_content_types=IMG_MIME_TYPE
-    )
+    meta=FileStoreMeta(name="message_image", permitted_content_types=IMG_MIME_TYPE)
 )
 
 img_resize_file_store = PersistyFileStore(
-    meta=FileStoreMeta(
-        name="resized_image",
-        permitted_content_types=IMG_MIME_TYPE
-    )
+    meta=FileStoreMeta(name="resized_image", permitted_content_types=IMG_MIME_TYPE)
 )
-

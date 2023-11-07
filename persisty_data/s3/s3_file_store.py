@@ -133,9 +133,7 @@ class S3FileStore(PersistyFileStoreABC):
         # noinspection PyProtectedMember
         result = self.upload_handle_store._delete(upload_id, upload_handle)
         if result:
-            self.upload_part_store.delete_all(
-                attr_eq("upload_id", upload_id)
-            )
+            self.upload_part_store.delete_all(attr_eq("upload_id", upload_id))
             get_s3_client().abort_multipart_upload(
                 Bucket=self.bucket_name,
                 Key=upload_handle.file_name,

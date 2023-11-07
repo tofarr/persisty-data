@@ -89,7 +89,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
                 etag=file_handle.etag,
                 size_in_bytes=file_handle.size_in_bytes,
                 download_url=self.download_url_pattern.format(
-                    store_name=self.meta.name.replace('_', '-'),
+                    store_name=self.meta.name.replace("_", "-"),
                     file_name=file_handle.file_name,
                 ),
                 updated_at=file_handle.updated_at,
@@ -109,7 +109,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         page_key: Optional[str] = None,
         limit: Optional[int] = None,
     ) -> ResultSet[FileHandle]:
-        search_filter = search_filter & attr_eq('store_name', self.meta.name)
+        search_filter = search_filter & attr_eq("store_name", self.meta.name)
         search_order = search_order.to_search_order() if search_order else None
         result_set = self.file_handle_store.search(
             search_filter, search_order, page_key, limit
@@ -121,12 +121,15 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         return result
 
     def file_count(self, search_filter: SearchFilterABC = INCLUDE_ALL) -> int:
-        search_filter = search_filter & attr_eq('store_name', self.meta.name)
+        search_filter = search_filter & attr_eq("store_name", self.meta.name)
         result = self.file_handle_store.count(search_filter)
         return result
 
     def upload_create(
-        self, file_name: Optional[str], content_type: Optional[str], size_in_bytes: Optional[int]
+        self,
+        file_name: Optional[str],
+        content_type: Optional[str],
+        size_in_bytes: Optional[int],
     ) -> UploadHandle:
         id_ = str(uuid4())
         if not file_name:
@@ -196,9 +199,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         return result
 
     def upload_count(self) -> int:
-        result = self.upload_handle_store.count(
-            attr_eq("store_name", self.meta.name)
-        )
+        result = self.upload_handle_store.count(attr_eq("store_name", self.meta.name))
         return result
 
     def upload_part_create(self, upload_id: str) -> Optional[UploadPart]:
@@ -221,7 +222,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
                 upload_id=upload_part.upload_id,
                 part_number=upload_part.part_number + 1,
                 upload_url=self.upload_url_pattern.format(
-                    store_name=self.meta.name.replace('_', '-'),
+                    store_name=self.meta.name.replace("_", "-"),
                     part_id=upload_part.id,
                 ),
             )
@@ -236,7 +237,10 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         search_filter = attr_eq("upload_id", upload_id__eq)
         upload_handle = self.upload_handle_store.read(upload_id__eq)
         result = self.upload_part_store.search(
-            search_filter, SearchOrder((SearchOrderAttr("part_number"),)), page_key, limit
+            search_filter,
+            SearchOrder((SearchOrderAttr("part_number"),)),
+            page_key,
+            limit,
         )
         result = UploadPartResultSet(
             results=[self._to_upload_part(p, upload_handle) for p in result.results],

@@ -22,7 +22,9 @@ from persisty_data.generator.file_handle_id_generator import FileHandleIdGenerat
 class PersistyFileHandle:
     """Metadata about a file"""
 
-    id: str = Attr(create_generator=FileHandleIdGenerator())  # Combo of store_name and file_name
+    id: str = Attr(
+        create_generator=FileHandleIdGenerator()
+    )  # Combo of store_name and file_name
     store_name: str
     file_name: str
     upload_id: Optional[UUID] = None

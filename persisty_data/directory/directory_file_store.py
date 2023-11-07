@@ -44,7 +44,10 @@ class DirectoryFileStore(PersistyFileStoreABC):
             path.parent.mkdir(parents=True, exist_ok=True)
             writer = open(path, "wb")
             writer = DirectoryFileHandleWriter(
-                writer=writer, store_name=self.meta.name, file_name=file_name, content_type=content_type
+                writer=writer,
+                store_name=self.meta.name,
+                file_name=file_name,
+                content_type=content_type,
             )
             return writer
         except FileNotFoundError:

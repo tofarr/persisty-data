@@ -56,6 +56,6 @@ def resized_img_url(
 
 def create_actions() -> Tuple[Callable, Callable]:
     return (
-        action(resized_img, triggers=WebPageTrigger(path='/resized-img')),
+        action(resized_img, triggers=WebPageTrigger(path="/resized-img")),
         action(resized_img_url, triggers=WEB_GET),
     )

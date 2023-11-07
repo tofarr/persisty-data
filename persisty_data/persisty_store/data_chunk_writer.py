@@ -27,10 +27,9 @@ class DataChunkWriter(RawIOBase):
         src_offset = 0
         while src_offset < len(__b):
             num_bytes_to_copy = min(
-                self.chunk_size - len(self.buffer),
-                len(__b) - src_offset
+                self.chunk_size - len(self.buffer), len(__b) - src_offset
             )
-            self.buffer.extend(__b[src_offset: src_offset + num_bytes_to_copy])
+            self.buffer.extend(__b[src_offset : src_offset + num_bytes_to_copy])
             src_offset += num_bytes_to_copy
             if len(self.buffer) == self.chunk_size:
                 self._create_chunk()

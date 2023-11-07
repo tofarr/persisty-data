@@ -31,13 +31,15 @@ class UploadHandle:
 
     @classmethod
     def __schema_factory__(
-            cls, context: SchemaContext, path: str, ref_schemas: Dict[Type, Schema]
+        cls, context: SchemaContext, path: str, ref_schemas: Dict[Type, Schema]
     ):
         schema = DataclassSchemaFactory().from_type(cls, context, path, ref_schemas)
-        schema.schema["properties"].update(**{
-            "parts": context.schema_from_type(UploadPartResultSet).schema,
-            "part_count": int_schema(minimum=1).schema
-        })
+        schema.schema["properties"].update(
+            **{
+                "parts": context.schema_from_type(UploadPartResultSet).schema,
+                "part_count": int_schema(minimum=1).schema,
+            }
+        )
         return schema
 
 

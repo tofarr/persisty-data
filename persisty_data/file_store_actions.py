@@ -11,7 +11,8 @@ from persisty_data.file_handle import FileHandle
 from persisty_data.file_store_abc import FileStoreABC
 from persisty_data.stored_file_handle import (
     FileHandleSearchFilter,
-    FileHandleSearchOrder, StoredFileHandle,
+    FileHandleSearchOrder,
+    StoredFileHandle,
 )
 from persisty_data.upload_handle import UploadHandle
 from persisty_data.upload_part import UploadPart
@@ -82,10 +83,13 @@ def create_action_for_file_count(store: FileStoreABC):
 
     @action(name=f"{store.get_meta().name}_file_count", triggers=WEB_GET)
     def file_count(
-        search_filter: Optional[FileHandleSearchFilter] = None, authorization: Optional[Authorization] = None
+        search_filter: Optional[FileHandleSearchFilter] = None,
+        authorization: Optional[Authorization] = None,
     ) -> int:
         secured_store = store.get_secured(authorization)
-        search_filter = search_filter.to_search_filter() if search_filter else INCLUDE_ALL
+        search_filter = (
+            search_filter.to_search_filter() if search_filter else INCLUDE_ALL
+        )
         result = secured_store.file_count(search_filter)
         return result
 

@@ -31,7 +31,7 @@ def stored_file_handle(file_store_meta: FileStoreMeta):
         schema.schema["persistyData"] = {
             "store_name": file_store_meta.name,
             "creatable": file_store_meta.store_access.create_filter is not EXCLUDE_ALL,
-            "maxPartSize": file_store_meta.max_part_size
+            "maxPartSize": file_store_meta.max_part_size,
         }
         return schema
 
@@ -48,10 +48,15 @@ def stored_file_handle(file_store_meta: FileStoreMeta):
         # noinspection PyTypeChecker
         params["content_type"] = field(
             metadata={
-                "schemey": Schema({"AnyOf": [
-                    {"type": "null"},
-                    {"enum": list(file_store_meta.permitted_content_types)}
-                ]}, Optional[str])
+                "schemey": Schema(
+                    {
+                        "AnyOf": [
+                            {"type": "null"},
+                            {"enum": list(file_store_meta.permitted_content_types)},
+                        ]
+                    },
+                    Optional[str],
+                )
             }
         )
 

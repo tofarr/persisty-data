@@ -16,7 +16,9 @@ class PersistyFileHandleWriter(DataChunkWriter):
     file_name: str
     content_type: Optional[str] = None
     file_handle_store: StoreABC[PersistyFileHandle] = field(
-        default_factory=lambda: find_store_meta_by_name("persisty_file_handle").create_store()
+        default_factory=lambda: find_store_meta_by_name(
+            "persisty_file_handle"
+        ).create_store()
     )
     size_in_bytes: int = 0
     hash: hashlib.md5 = field(default_factory=hashlib.md5)

@@ -127,7 +127,10 @@ class RestrictAccessFileStore(FileStoreABC):
         return self.file_store.file_delete(file_name)
 
     def upload_create(
-        self, file_name: Optional[str], content_type: Optional[str], size_in_bytes: Optional[int]
+        self,
+        file_name: Optional[str],
+        content_type: Optional[str],
+        size_in_bytes: Optional[int],
     ) -> Optional[UploadHandle]:
         file_store = self.file_store
         store_access = self.store_access
