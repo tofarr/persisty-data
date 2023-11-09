@@ -31,12 +31,6 @@ def configure(context: MarshallerContext):
 
     register_impl(AttrValueGeneratorABC, FileHandleIdGenerator, context)
 
-    try:
-        from persisty_data.finder.file_store_route_factory import FileStoreRouteFactory
-
-        register_impl(RouteFactoryABC, FileStoreRouteFactory, context)
-    except ModuleNotFoundError as e:
-        raise_non_ignored(e)
     configure_serverless(context)
 
 

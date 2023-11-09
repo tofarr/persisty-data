@@ -16,7 +16,7 @@ from persisty.search_filter.search_filter_abc import SearchFilterABC
 from persisty.search_order.search_order import SearchOrder
 from persisty.search_order.search_order_attr import SearchOrderAttr
 from persisty.store.store_abc import StoreABC
-from persisty.store_meta import get_meta, StoreMeta
+from persisty.store_meta import get_meta as get_stored_meta, StoreMeta
 from servey.security.authorizer.authorizer_factory_abc import get_default_authorizer
 
 from persisty_data.file_handle import FileHandle
@@ -38,13 +38,13 @@ from persisty_data.upload_part import UploadPart, UploadPartResultSet
 class PersistyFileStoreABC(FileStoreABC, ABC):
     meta: FileStoreMeta
     file_handle_store: StoreABC[PersistyFileHandle] = field(
-        default_factory=get_meta(PersistyFileHandle).create_store
+        default_factory=get_stored_meta(PersistyFileHandle).create_store
     )
     upload_handle_store: StoreABC[PersistyUploadHandle] = field(
-        default_factory=get_meta(PersistyUploadHandle).create_store
+        default_factory=get_stored_meta(PersistyUploadHandle).create_store
     )
     upload_part_store: StoreABC[PersistyUploadPart] = field(
-        default_factory=get_meta(PersistyUploadPart).create_store
+        default_factory=get_stored_meta(PersistyUploadPart).create_store
     )
     download_url_pattern: str = "/data/{store_name}/{file_name}"
     upload_url_pattern: str = "/data/{store_name}/{part_id}"
@@ -208,13 +208,11 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
             upload_part = PersistyUploadPart(upload_id=upload_handle.id)
             upload_part = self.upload_part_store.create(upload_part)
             if upload_part:
-                result = self._to_upload_part(upload_part, upload_handle)
+                result = self._to_upload_part(upload_part)
                 return result
 
     def _to_upload_part(
-        self,
-        upload_part: Optional[PersistyUploadPart],
-        upload_handle: PersistyUploadHandle,
+        self, upload_part: Optional[PersistyUploadPart]
     ) -> Optional[UploadPart]:
         if upload_part:
             result = UploadPart(
@@ -235,7 +233,6 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
         limit: Optional[int] = None,
     ) -> UploadPartResultSet:
         search_filter = attr_eq("upload_id", upload_id__eq)
-        upload_handle = self.upload_handle_store.read(upload_id__eq)
         result = self.upload_part_store.search(
             search_filter,
             SearchOrder((SearchOrderAttr("part_number"),)),
@@ -243,7 +240,7 @@ class PersistyFileStoreABC(FileStoreABC, ABC):
             limit,
         )
         result = UploadPartResultSet(
-            results=[self._to_upload_part(p, upload_handle) for p in result.results],
+            results=[self._to_upload_part(p) for p in result.results],
             next_page_key=result.next_page_key,
         )
         return result

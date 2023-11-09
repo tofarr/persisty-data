@@ -24,6 +24,7 @@ from persisty_data.upload_part import UploadPartResultSet, UploadPart
 _Route = "starlette.routing.Route"
 
 
+# pylint: disable=R0904
 class FileStoreABC(ABC):
     """
     Interface representing binary data storage. Methods of this class are typically
@@ -51,23 +52,22 @@ class FileStoreABC(ABC):
 
         actions = (
             file_store_actions.create_action_for_file_read(
-                self, file_handle_type, file_handle_result_type
+                self, file_handle_result_type
             ),
             file_store_actions.create_action_for_file_count(self),
             file_store_actions.create_action_for_file_delete(self),
             file_store_actions.create_action_for_file_search(
                 self,
-                file_handle_type,
                 file_handle_result_type,
                 file_handle_result_set_type,
             ),
             file_store_actions.create_action_for_file_read_batch(
-                self, file_handle_type, file_handle_result_type
+                self, file_handle_result_type
             ),
             file_store_actions.create_action_for_upload_create(self),
             file_store_actions.create_action_for_upload_delete(self),
             file_store_actions.create_action_for_upload_finish(
-                self, file_handle_type, file_handle_result_type
+                self, file_handle_result_type
             ),
             file_store_actions.create_action_for_upload_part_count(self),
             file_store_actions.create_action_for_upload_part_create(self),

@@ -2,7 +2,7 @@ from dataclasses import field, dataclass
 from io import IOBase
 from tempfile import SpooledTemporaryFile
 from types import TracebackType
-from typing import Any
+from typing import Any, Union
 
 from persisty_data.s3.s3_client import get_s3_client
 
@@ -23,14 +23,14 @@ class S3UploadPartWriter(IOBase):
     def __enter__(self):
         self.file.__enter__()
 
-    def write(self, __b) -> int | None:
+    def write(self, __b) -> Union[int, None]:
         return self.file.write(__b)
 
     def __exit__(
         self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
+        exc_type: Union[type[BaseException], None],
+        exc_val: Union[BaseException, None],
+        exc_tb: Union[TracebackType, None],
     ) -> None:
         self.file.seek(0)
         get_s3_client().upload_part(

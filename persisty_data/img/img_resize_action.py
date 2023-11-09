@@ -12,6 +12,7 @@ from persisty_data.img.img_resizer import ImgResizer
 img_resizer = None
 
 
+# pylint: disable=W0603
 def get_img_resizer():
     global img_resizer
     if img_resizer is None:
@@ -19,11 +20,13 @@ def get_img_resizer():
     return img_resizer
 
 
+# pylint: disable=W0603
 def set_img_resizer(img_resizer_: ImgResizer):
     global img_resizer
     img_resizer = img_resizer_
 
 
+# pylint: disable=R0913
 def resized_img(
     store_name: str,
     file_name: str,
@@ -40,6 +43,7 @@ def resized_img(
     return Redirect(download_url, 301)
 
 
+# pylint: disable=R0913
 def resized_img_url(
     store_name: str,
     file_name: str,

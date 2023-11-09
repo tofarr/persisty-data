@@ -2,7 +2,7 @@ from dataclasses import field, dataclass
 from io import IOBase
 from tempfile import SpooledTemporaryFile
 from types import TracebackType
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from persisty.store.store_abc import StoreABC
 from persisty.store_meta import get_meta
@@ -31,7 +31,7 @@ class S3ContentWriter(IOBase):
     def __enter__(self):
         self.file.__enter__()
 
-    def write(self, __b) -> int | None:
+    def write(self, __b) -> Union[int, None]:
         result = self.file.write(__b)
         if result:
             self.size_in_bytes += result
@@ -39,9 +39,9 @@ class S3ContentWriter(IOBase):
 
     def __exit__(
         self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
+        exc_type: Union[type[BaseException], None],
+        exc_val: Union[BaseException, None],
+        exc_tb: Union[TracebackType, None],
     ) -> None:
         self.file.seek(0)
         response = get_s3_client().put_object(

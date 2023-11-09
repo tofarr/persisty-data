@@ -128,8 +128,8 @@ def parse_ranges(request: Request) -> Optional[Tuple[int, int]]:
             raise PersistyError("multipart_range_not_supported")
         start, end = (int(n) for n in range_header.split("-"))
         return start, end
-    except ValueError:
-        raise PersistyError("invalid_range")
+    except ValueError as exc:
+        raise PersistyError("invalid_range") from exc
 
 
 def create_route_for_download(

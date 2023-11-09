@@ -79,6 +79,7 @@ class PersistyFileStore(PersistyFileStoreABC):
         file_handle = self.file_handle_store.read(key)
         if not file_handle:
             return False
+        # pylint: disable=W0212
         # noinspection PyProtectedMember
         result = self.file_handle_store._delete(key, file_handle)
         if result:
@@ -114,6 +115,7 @@ class PersistyFileStore(PersistyFileStoreABC):
         self.upload_handle_store.delete(str(upload_id))
         if file_handle:
             old_upload_id = file_handle.upload_id
+            # pylint: disable=W0212
             # noinspection PyProtectedMember
             file_handle = self.file_handle_store._update(
                 file_handle_id, file_handle, new_file_handle

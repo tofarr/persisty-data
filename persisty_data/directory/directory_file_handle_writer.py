@@ -1,7 +1,7 @@
 import hashlib
 from dataclasses import dataclass, field
 from io import IOBase
-from typing import BinaryIO, Optional
+from typing import BinaryIO, Optional, Union
 
 from persisty.store.store_abc import StoreABC
 from persisty.store_meta import get_meta
@@ -25,7 +25,7 @@ class DirectoryFileHandleWriter(IOBase):
         self.writer.__enter__()
         return self
 
-    def write(self, __b) -> int | None:
+    def write(self, __b) -> Union[int, type(None)]:
         self.hash.update(__b)
         self.size_in_bytes += len(__b)
         result = self.writer.write(__b)

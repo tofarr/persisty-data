@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Optional, Type, Tuple
+from typing import Optional, Tuple
 
 from persisty.security.store_access import StoreAccess, ALL_ACCESS
 from servey.cache_control.cache_control_abc import CacheControlABC
@@ -15,6 +14,7 @@ def default_store_security():
     return UNSECURED_FILE
 
 
+# pylint: disable=R0902
 @dataclass
 class FileStoreMeta:
     name: str

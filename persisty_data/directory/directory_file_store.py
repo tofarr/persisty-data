@@ -42,6 +42,7 @@ class DirectoryFileStore(PersistyFileStoreABC):
         try:
             path = key_to_path(self.store_dir, file_name)
             path.parent.mkdir(parents=True, exist_ok=True)
+            # pylint: disable=R1732
             writer = open(path, "wb")
             writer = DirectoryFileHandleWriter(
                 writer=writer,
@@ -63,6 +64,7 @@ class DirectoryFileStore(PersistyFileStoreABC):
         try:
             file_name = key_to_path(self.upload_dir, str(upload_part.upload_id))
             file_name.mkdir(parents=True, exist_ok=True)
+            # pylint: disable=R1732
             writer = open(key_to_path(file_name, part_id), "wb")
             # noinspection PyTypeChecker
             return writer
@@ -81,6 +83,7 @@ class DirectoryFileStore(PersistyFileStoreABC):
         if not file_handle:
             return False
         # noinspection PyProtectedMember
+        # pylint: disable=W0212
         result = self.file_handle_store._delete(key, file_handle)
         if result:
             os.remove(key_to_path(self.store_dir, file_name))
@@ -130,6 +133,7 @@ class DirectoryFileStore(PersistyFileStoreABC):
         self.upload_handle_store.delete(str(upload_id))
         if file_handle:
             # noinspection PyProtectedMember
+            # pylint: disable=W0212
             file_handle = self.file_handle_store._update(
                 file_handle_id, file_handle, new_file_handle
             )

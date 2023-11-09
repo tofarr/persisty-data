@@ -8,7 +8,6 @@ from persisty.batch_edit import BatchEdit
 from persisty_data.file_handle import FileHandle
 from persisty_data.persisty_store.persisty_file_handle import PersistyFileHandle
 from persisty_data.persisty_store.persisty_file_store_abc import PersistyFileStoreABC
-from persisty_data.persisty_store.persisty_upload_handle import PersistyUploadHandle
 from persisty_data.persisty_store.persisty_upload_part import PersistyUploadPart
 from persisty_data.s3.s3_client import get_s3_client
 from persisty_data.s3.s3_content_writer import S3ContentWriter
@@ -85,6 +84,7 @@ class S3FileStore(PersistyFileStoreABC):
         if not file_handle:
             return False
         # noinspection PyProtectedMember
+        # pylint: disable=W0212
         result = self.file_handle_store._delete(key, file_handle)
         if not result:
             return False
@@ -119,6 +119,7 @@ class S3FileStore(PersistyFileStoreABC):
         self.upload_handle_store.delete(str(upload_id))
         if file_handle:
             # noinspection PyProtectedMember
+            # pylint: disable=W0212
             file_handle = self.file_handle_store._update(
                 file_handle_id, file_handle, new_file_handle
             )
@@ -131,6 +132,7 @@ class S3FileStore(PersistyFileStoreABC):
         if not upload_handle:
             return False
         # noinspection PyProtectedMember
+        # pylint: disable=W0212
         result = self.upload_handle_store._delete(upload_id, upload_handle)
         if result:
             self.upload_part_store.delete_all(attr_eq("upload_id", upload_id))
@@ -144,10 +146,10 @@ class S3FileStore(PersistyFileStoreABC):
     def _to_upload_part(
         self,
         upload_part: Optional[PersistyUploadPart],
-        upload_handle: PersistyUploadHandle,
     ) -> Optional[UploadPart]:
-        result = super()._to_upload_part(upload_part, upload_handle)
+        result = super()._to_upload_part(upload_part)
         if result and self.signed_upload_urls:
+            upload_handle = self.upload_handle_store.read(upload_part.upload_id)
             result.upload_url = get_s3_client().generate_presigned_url(
                 ClientMethod="upload_part",
                 Params={

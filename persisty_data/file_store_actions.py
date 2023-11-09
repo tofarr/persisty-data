@@ -7,7 +7,6 @@ from servey.action.action import action
 from servey.security.authorization import Authorization
 from servey.trigger.web_trigger import WEB_GET, WEB_POST
 
-from persisty_data.file_handle import FileHandle
 from persisty_data.file_store_abc import FileStoreABC
 from persisty_data.stored_file_handle import (
     FileHandleSearchFilter,
@@ -22,7 +21,6 @@ _ATTRS = get_meta(StoredFileHandle).attrs
 
 def create_action_for_file_read(
     store: FileStoreABC,
-    file_handle_type: Type[FileHandle],
     file_handle_result_type: Type,
 ):
     if store.get_api().get_meta().store_access.read_filter is EXCLUDE_ALL:
@@ -47,7 +45,6 @@ def create_action_for_file_read(
 
 def create_action_for_file_read_batch(
     store: FileStoreABC,
-    file_handle_type: Type[FileHandle],
     file_handle_result_type: Type,
 ):
     if store.get_api().get_meta().store_access.read_filter is EXCLUDE_ALL:
@@ -98,7 +95,6 @@ def create_action_for_file_count(store: FileStoreABC):
 
 def create_action_for_file_search(
     store: FileStoreABC,
-    file_handle_type: Type[FileHandle],
     file_handle_result_type: Type,
     file_handle_result_set_type: Type,
 ):
@@ -194,7 +190,6 @@ def create_action_for_upload_read(store: FileStoreABC):
 
 def create_action_for_upload_finish(
     store: FileStoreABC,
-    file_handle_type: Type[FileHandle],
     file_handle_result_type: Type,
 ):
     if _is_not_editable(store):

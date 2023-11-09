@@ -3,12 +3,12 @@ from typing import Dict, Generic, List, Optional, Type, TypeVar
 
 from marshy.factory.optional_marshaller_factory import get_optional_type
 from marshy.types import ExternalItemType
-from persisty.attr.generator.default_value_generator import DefaultValueGenerator
 from schemey import schema_from_type
 from servey.security.authorization import Authorization
 
 from persisty.attr.attr import Attr, DEFAULT_PERMITTED_FILTER_OPS
 from persisty.attr.attr_type import AttrType
+from persisty.attr.generator.default_value_generator import DefaultValueGenerator
 from persisty.errors import PersistyError
 from persisty.link.link_abc import LinkABC
 

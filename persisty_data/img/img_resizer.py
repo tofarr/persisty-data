@@ -34,6 +34,7 @@ class ImgResizer:
     max_width: int = 1024
     max_height: int = 768
 
+    # pylint: disable=R0913
     def get_resized_image_file_name(
         self, store: str, file_name: str, width: int, height: int, img_type: ImgType
     ):
@@ -42,10 +43,6 @@ class ImgResizer:
         resized_image_file_name = (
             f"{store}/{width}_{height}/{file_name}.{img_type.value}"
         )
-        # resized_image_file_name = f"{store}/{width}_{height}/{file_name}"
-        # file_type = f".{img_type.value}"
-        # if not file_name.endswith(file_type):
-        #    resized_image_file_name += file_type
         return resized_image_file_name
 
     @staticmethod
@@ -56,6 +53,7 @@ class ImgResizer:
         img_type = ImgType(img_type)
         return img_type
 
+    # pylint: disable=R0913
     def get_resized_image_download_url(
         self,
         store_name: str,

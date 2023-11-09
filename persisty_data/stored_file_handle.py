@@ -7,7 +7,7 @@ from persisty.search_filter.search_filter_factory import search_filter_dataclass
 from persisty.search_order.search_order_factory import search_order_dataclass_for
 from persisty.store_meta import get_meta
 from persisty.stored import stored
-from schemey import schema_from_type, SchemaContext
+from schemey import SchemaContext
 from schemey.factory.dataclass_schema_factory import DataclassSchemaFactory
 from schemey.schema import int_schema, Schema
 
@@ -38,6 +38,7 @@ def stored_file_handle(file_store_meta: FileStoreMeta):
     annotations = {"size_in_bytes": int}
     params = {
         "__annotations__": annotations,
+        # pylint: disable=E3701
         "size_in_bytes": field(
             metadata={"schemey": int_schema(maximum=file_store_meta.max_file_size)}
         ),
@@ -45,6 +46,7 @@ def stored_file_handle(file_store_meta: FileStoreMeta):
     }
     if file_store_meta.permitted_content_types:
         annotations["content_type"] = str
+        # pylint: disable=E3701
         # noinspection PyTypeChecker
         params["content_type"] = field(
             metadata={

@@ -174,7 +174,7 @@ class RestrictAccessFileStore(FileStoreABC):
         file_handle = StoredFileHandle(
             file_name=upload_handle.file_name, content_type=upload_handle.content_type
         )
-        if create_filter.match(file_handle):
+        if create_filter.match(file_handle, attrs):
             return upload_handle
 
     def upload_search(
@@ -184,8 +184,7 @@ class RestrictAccessFileStore(FileStoreABC):
         update_filter = self.store_access.update_filter
         if create_filter is EXCLUDE_ALL and update_filter is EXCLUDE_ALL:
             return UploadHandleResultSet([])
-        if not limit:
-            limit = self.get_meta().batch_size
+        limit = limit if limit else self.get_meta().batch_size
         if page_key:
             page_key, skip = decrypt(page_key)
         else:

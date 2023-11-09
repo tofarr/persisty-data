@@ -1,7 +1,7 @@
 import hashlib
 from dataclasses import dataclass, field
 from types import TracebackType
-from typing import Optional
+from typing import Optional, Union
 
 from persisty.finder.store_meta_finder_abc import find_store_meta_by_name
 from persisty.store.store_abc import StoreABC
@@ -31,9 +31,9 @@ class PersistyFileHandleWriter(DataChunkWriter):
 
     def __exit__(
         self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
+        exc_type: Union[type[BaseException], None],
+        exc_val: Union[BaseException, None],
+        exc_tb: Union[TracebackType, None],
     ) -> None:
         super().__exit__(exc_type, exc_val, exc_tb)
         key = f"{self.store_name}/{self.file_name}"

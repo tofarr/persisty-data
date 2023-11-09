@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from io import RawIOBase
 from types import TracebackType
+from typing import Union
 
 from persisty.finder.store_meta_finder_abc import find_store_meta_by_name
 from persisty.store.store_abc import StoreABC
@@ -23,7 +24,7 @@ class DataChunkWriter(RawIOBase):
     def __enter__(self):
         return self
 
-    def write(self, __b) -> int | None:
+    def write(self, __b) -> Union[int, None]:
         src_offset = 0
         while src_offset < len(__b):
             num_bytes_to_copy = min(
@@ -51,9 +52,9 @@ class DataChunkWriter(RawIOBase):
 
     def __exit__(
         self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
+        exc_type: Union[type[BaseException], None],
+        exc_val: Union[BaseException, None],
+        exc_tb: Union[TracebackType, None],
     ) -> None:
         if self.buffer:
             self._create_chunk()

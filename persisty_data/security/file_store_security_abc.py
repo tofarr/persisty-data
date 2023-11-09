@@ -3,8 +3,6 @@ from typing import Optional, Generic, TypeVar
 
 from servey.security.authorization import Authorization
 
-from persisty.security.store_access import StoreAccess
-
 _FileStoreABC = "persisty-data.file_store_abc.FileStoreABC"
 T = TypeVar("T")
 
