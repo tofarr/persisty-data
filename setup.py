@@ -3,6 +3,26 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+extras_require = {
+    "dev": [
+        "black~=23.3",
+        "pytest~=7.2",
+        "pytest-cov~=4.0",
+        "pytest-xdist~=3.2",
+        "pylint~=3.0",
+        "boto3~=1.26",
+        "moto~=3.1",
+    ],
+    "img": ["Pillow~=10.0"],
+}
+extras_require["all"] = list(
+    {
+        dependency
+        for dependencies in extras_require.values()
+        for dependency in dependencies
+    }
+)
+
 setuptools.setup(
     name="persisty-data",
     author="Tim O'Farrell",
@@ -15,18 +35,7 @@ setuptools.setup(
     install_requires=[
         "persisty[all]",
     ],
-    extras_require={
-        "dev": [
-            "black~=23.3",
-            "pytest~=7.2",
-            "pytest-cov~=4.0",
-            "pytest-xdist~=3.2",
-            "pylint~=3.0",
-            "boto3~=1.26",
-            "moto~=3.1",
-        ],
-        "img": ["Pillow~=10.0"],
-    },
+    extras_require=extras_require,
     setup_requires=["setuptools-git-versioning"],
     setuptools_git_versioning={"enabled": True, "dirty_template": "{tag}"},
     classifiers=[
